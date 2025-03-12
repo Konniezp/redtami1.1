@@ -19,6 +19,7 @@ node_modules/
 
 # Entornos virtuales de Python
 .venv
+venv/
 .env
 .envpractica
 
