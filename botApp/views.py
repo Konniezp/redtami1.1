@@ -92,7 +92,7 @@ def datosPerfil(request):
 
 @login_required
 def datosPreguntas(request):
-    Datos = UsuarioRespuesta.objects.select_related(
+    Datos = RespUsuarioTamizaje.objects.select_related(
         "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
         "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
         "fecha_respuesta", "RutHash").order_by("-fecha_respuesta")
@@ -100,143 +100,6 @@ def datosPreguntas(request):
         "Datos": Datos,
     }
     return render(request, "respuestas/datosPreguntas.html", data)
-
-@login_required
-def datosTextoPreguntas(request):
-    Datos = UsuarioTextoPregunta.objects.all().order_by("-fecha_pregunta")
-    data = {
-        "Datos": Datos,
-    }
-    return render(request, "respuestas/datosPreguntasEspecialistas.html", data)
-
-@login_required
-def datosFRM(request):
-    Datos = RespUsuarioFactorRiesgoMod.objects.select_related().values(
-        "id",
-        "RutHash",
-        "respuesta_FRM__id_pregunta_FRM_id__pregunta_FRM",
-        "respuesta_FRM__opc_respuesta_FRM",
-        "fecha_respuesta"
-    ).order_by("-RutHash")
-    data = {
-        "Datos": Datos,
-    }
-    return render(request, "respuestas/datosFRM.html", data)
-
-@login_required
-def datosFRM2(request):
-    preguntas = PregFactorRiesgoMod.objects.all()
-    usuarios_respuestas = RespUsuarioFactorRiesgoMod.objects.select_related(
-        "respuesta_FRM", "respuesta_FRM__id_pregunta_FRM"
-    ).values( "RutHash", "fecha_respuesta", "respuesta_FRM__id_pregunta_FRM__pregunta_FRM", "respuesta_FRM__opc_respuesta_FRM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta["RutHash"]
-        pregunta = respuesta["respuesta_FRM__id_pregunta_FRM__pregunta_FRM"]
-        respuesta_usuario = respuesta["respuesta_FRM__opc_respuesta_FRM"]
-        
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {"fecha": respuesta["fecha_respuesta"], "respuestas": {}}
-        dict_respuestas[rut]["respuestas"][pregunta] = respuesta_usuario
-
-    # Convertir el diccionario a una lista de listas para facilitar la renderización en HTML
-    tabla_respuestas = []
-    for rut, data in dict_respuestas.items():
-        fila = [rut] + [data["respuestas"].get(p.pregunta_FRM, "-") for p in preguntas] + [data["fecha"]]
-        tabla_respuestas.append(fila)
-
-    return render(request, "respuestas/datosFRM2.html", {
-        "preguntas": preguntas,
-        "tabla_respuestas": tabla_respuestas,
-    })
-
-@login_required
-def datosFRNM(request):
-    Datos = RespUsuarioFactorRiesgoNoMod.objects.select_related().values(
-        "id",
-        "RutHash",
-        "respuesta_FRNM_id__id_pregunta_FRNM_id__pregunta_FRNM",
-        "respuesta_FRNM_id__opc_respuesta_FRNM",
-        "fecha_respuesta"
-    ).order_by("-RutHash")
-    data = {
-        "Datos": Datos,
-    }
-    return render(request, "respuestas/datosFRNM.html", data)
-
-@login_required
-def datosFRNM2(request):
-    preguntas = PregFactorRiesgoNoMod.objects.all()
-    usuarios_respuestas = RespUsuarioFactorRiesgoNoMod.objects.select_related(
-        "respuesta_FRNM", "respuesta_FRM__id_pregunta_FRNM"
-    ).values( "RutHash", "fecha_respuesta", "respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM", "respuesta_FRNM__opc_respuesta_FRNM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta[ "RutHash"]
-        pregunta = respuesta["respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM"]
-        respuesta_usuario = respuesta["respuesta_FRNM__opc_respuesta_FRNM"]
-        
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {"fecha": respuesta["fecha_respuesta"], "respuestas": {}}
-        dict_respuestas[rut]["respuestas"][pregunta] = respuesta_usuario
-
-    # Convertir el diccionario a una lista de listas para facilitar la renderización en HTML
-    tabla_respuestas = []
-    for rut, data in dict_respuestas.items():
-        fila = [rut] + [data["respuestas"].get(p.pregunta_FRNM, "-") for p in preguntas] + [data["fecha"]]
-        tabla_respuestas.append(fila)
-
-    return render(request, "respuestas/datosFRNM2.html", {
-        "preguntas": preguntas,
-        "tabla_respuestas": tabla_respuestas,
-    })
-
-@login_required
-def datosDS(request):
-    Datos = RespDeterSalud.objects.select_related().values(
-        "id",
-        "RutHash",
-        "respuesta_DS_id__id_pregunta_DS_id__pregunta_DS",
-        "respuesta_DS_id__opc_respuesta_DS",
-        "fecha_respuesta"
-    ).order_by("-RutHash")
-    data = {
-        "Datos": Datos,
-    }
-    return render(request,"respuestas/datosDS.html", data)
-
-@login_required
-def datosDS2(request):
-    preguntas = PregDeterSalud.objects.all()
-    usuarios_respuestas = RespDeterSalud.objects.select_related(
-        "respuesta_DS", "respuesta_DS__id_pregunta_DS"
-    ).values("RutHash", "fecha_respuesta", "respuesta_DS__id_pregunta_DS__pregunta_DS", "respuesta_DS__opc_respuesta_DS")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta[ "RutHash"]
-        pregunta = respuesta["respuesta_DS__id_pregunta_DS__pregunta_DS"]
-        respuesta_usuario = respuesta["respuesta_DS__opc_respuesta_DS"]
-        
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {"fecha": respuesta["fecha_respuesta"], "respuestas": {}}
-        dict_respuestas[rut]["respuestas"][pregunta] = respuesta_usuario
-
-    # Convertir el diccionario a una lista de listas para facilitar la renderización en HTML
-    tabla_respuestas = []
-    for rut, data in dict_respuestas.items():
-        fila = [rut] + [data["respuestas"].get(p.pregunta_DS, "-") for p in preguntas] + [data["fecha"]]
-        tabla_respuestas.append(fila)
-
-    return render(request, "respuestas/datosDS2.html", {
-        "preguntas": preguntas,
-        "tabla_respuestas": tabla_respuestas,
-    })
 
 @login_required
 def datosListadoOrdenado(request):
@@ -317,11 +180,11 @@ def crear_excel_desde_db():
     ws_respuestas_usuario = wb.active
     ws_respuestas_usuario.title = 'Respuestas Usuario'
 
-    preguntas = Pregunta.objects.all()
+    preguntas = PregTamizaje.objects.all()
     lista_preguntas = [ "RutHash"] + [pregunta.pregunta for pregunta in preguntas]
     ws_respuestas_usuario.append(lista_preguntas)
 
-    usuarios_respuestas = UsuarioRespuesta.objects.select_related('id_opc_respuesta', 'id_opc_respuesta__id_pregunta').values(
+    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related('id_opc_respuesta', 'id_opc_respuesta__id_pregunta').values(
          'RutHash', 'id_opc_respuesta__id_pregunta__pregunta', 'id_opc_respuesta__OPC_Respuesta'
     )
 
@@ -358,198 +221,6 @@ def crear_excel_desde_db():
     # Ajustar ancho de columnas y color de fondo 
     ajustar_ancho_columnas(ws_datos_perfil)
     background_colors(ws_datos_perfil)
-
-    # Hoja 3: Preguntas Especialista
-    ws_preguntas_especialista = wb.create_sheet(title='Preguntas al especialista')
-    campos_preguntas_especialista = [field.name for field in UsuarioTextoPregunta._meta.fields if field.name != 'id']
-    ws_preguntas_especialista.append(campos_preguntas_especialista)
-
-    for pregunta in UsuarioTextoPregunta.objects.all():
-        datos_pregunta = [str(getattr(pregunta, campo)) for campo in campos_preguntas_especialista]
-        ws_preguntas_especialista.append(datos_pregunta)
-
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_preguntas_especialista)
-    background_colors(ws_preguntas_especialista)
-
-    # Hoja 4: Factores riesgo modificables 
-
-    ws_FRM = wb.create_sheet(title='Factores riesgo modificables')
-
-    preguntas =PregFactorRiesgoMod.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_FRM for pregunta in preguntas]
-    ws_FRM.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoMod.objects.select_related(
-    "respuesta_FRM", "respuesta_FRM__id_pregunta_FRM").values("RutHash", "fecha_respuesta",  "respuesta_FRM__id_pregunta_FRM__pregunta_FRM", "respuesta_FRM__opc_respuesta_FRM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_FRM__id_pregunta_FRM__pregunta_FRM']
-        respuesta_usuario = respuesta['respuesta_FRM__opc_respuesta_FRM']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_FRM, '')
-            fila.append(respuesta)
-        ws_FRM.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRM)
-    background_colors(ws_FRM)
-
-    #OPCIÓN 2: 
-
-    ws_FRM_2 = wb.create_sheet(title='Factores Riesgo modificables 2')
-
-    preguntas =PregFactorRiesgoMod.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_FRM_2.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoMod.objects.select_related(
-    "respuesta_FRM", "respuesta_FRM__id_pregunta_FRM").values( "RutHash", "fecha_respuesta",  "respuesta_FRM__id_pregunta_FRM__pregunta_FRM", "respuesta_FRM__opc_respuesta_FRM").order_by('Rut')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_FRM__id_pregunta_FRM__pregunta_FRM']
-        respuesta_usuario = respuesta['respuesta_FRM__opc_respuesta_FRM']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,  
-            respuesta_usuario, 
-            fecha_respuesta,  
-        ]
-        ws_FRM_2.append(fila)
-    
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRM_2)
-    background_colors(ws_FRM_2)
-
-    # Hoja 5: Factores riesgo No modificables 
-
-    ws_FRNM = wb.create_sheet(title='Factores Riesgo No Mod')
-
-    preguntas =PregFactorRiesgoNoMod.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_FRNM for pregunta in preguntas]
-    ws_FRNM.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoNoMod.objects.select_related(
-    "respuesta_FRNM", "respuesta_FRNM__id_pregunta_FRNM").values("RutHash", "fecha_respuesta",  "respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM", "respuesta_FRNM__opc_respuesta_FRNM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM']
-        respuesta_usuario = respuesta['respuesta_FRNM__opc_respuesta_FRNM']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_FRNM, '')
-            fila.append(respuesta)
-        ws_FRNM.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRNM)
-    background_colors(ws_FRNM)
-
-    #OPCIÓN 2: 
-
-    ws_FRNM_2 = wb.create_sheet(title='Factores Riesgo No Mod 2')
-
-    preguntas =PregFactorRiesgoNoMod.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_FRNM_2.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoNoMod.objects.select_related(
-    "respuesta_FRNM", "respuesta_FRNM__id_pregunta_FRNM").values( "RutHash", "fecha_respuesta",  "respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM","respuesta_FRNM__opc_respuesta_FRNM").order_by('RutHash')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM']
-        respuesta_usuario = respuesta['respuesta_FRNM__opc_respuesta_FRNM']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,
-            respuesta_usuario,
-            fecha_respuesta, 
-        ]
-        ws_FRNM_2.append(fila)
-
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRNM_2)
-    background_colors(ws_FRNM_2)
-
-    # Hoja 6: Determinantes de Salud 
-    ws_DS = wb.create_sheet(title='Determinantes de Salud')
-    preguntas =PregDeterSalud.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_DS for pregunta in preguntas]
-    ws_DS.append(lista_preguntas)
-
-    usuarios_respuestas = RespDeterSalud.objects.select_related(
-    "respuesta_DS", "respuesta_DS__id_pregunta_DS").values( "RutHash", "fecha_respuesta",  "respuesta_DS__id_pregunta_DS__pregunta_DS", "respuesta_DS__opc_respuesta_DS")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_DS__id_pregunta_DS__pregunta_DS']
-        respuesta_usuario = respuesta['respuesta_DS__opc_respuesta_DS']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_DS, '')
-            fila.append(respuesta)
-        ws_DS.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_DS)
-    background_colors(ws_DS)
-
-    #OPCIÓN 2: 
-
-    ws_DS_2 = wb.create_sheet(title='Determinantes de Salud 2')
-
-    preguntas =PregDeterSalud.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_DS_2.append(lista_preguntas)
-
-    usuarios_respuestas = RespDeterSalud.objects.select_related(
-    "respuesta_DS", "respuesta_DS__id_pregunta_DS").values( "RutHash", "fecha_respuesta",  "respuesta_DS__id_pregunta_DS__pregunta_DS","respuesta_DS__opc_respuesta_DS").order_by('RutHash')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_DS__id_pregunta_DS__pregunta_DS']
-        respuesta_usuario = respuesta['respuesta_DS__opc_respuesta_DS']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,
-            respuesta_usuario,
-            fecha_respuesta, 
-        ]
-        ws_DS_2.append(fila) 
-
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_DS_2)
-    background_colors(ws_DS_2)
-
 
     # Guardar el archivo
     nombre_archivo = 'reporte_respuestas.xlsx'
@@ -634,11 +305,11 @@ def crear_excel_datos_preguntas(resquest):
     ws_datos_preg = wb.active
     ws_datos_preg.title = "Preguntas generales"
 
-    preguntas =Pregunta.objects.all()
+    preguntas = PregTamizaje.objects.all()
     lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
     ws_datos_preg.append(lista_preguntas)
 
-    usuarios_respuestas = UsuarioRespuesta.objects.select_related(
+    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related(
         "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
         "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
         "fecha_respuesta",  "RutHash").order_by("-fecha_respuesta")
@@ -665,268 +336,6 @@ def crear_excel_datos_preguntas(resquest):
     response["Content-Disposition"] = 'attachment; filename="Datos preguntas.xlsx"'
 
     # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_preguntas_esp(resquest):
-    wb = Workbook()
-    ws_preg_esp = wb.active
-    ws_preg_esp.title = "Preguntas especialistas"
-
-    lista_preguntas = ['RutHash', 'Preguntas', 'Fecha Pregunta'] 
-    ws_preg_esp.append(lista_preguntas)
-
-    preguntas = UsuarioTextoPregunta.objects.all()
-
-    for pregunta in preguntas:
-        fila = [
-            pregunta.RutHash,  
-            pregunta.texto_pregunta,
-            pregunta.fecha_pregunta.replace(tzinfo=None) if pregunta.fecha_pregunta else ''
-        ]
-        ws_preg_esp.append(fila)
-    
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_preg_esp)
-    background_colors(ws_preg_esp)
-
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="Preguntas Especialista.xlsx"'
-
-    # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_mod_V1(resquest):
-    wb = Workbook()
-    ws_FRM_V1 = wb.active
-    ws_FRM_V1.title = "Factores de riesgo mod"
-
-    preguntas =PregFactorRiesgoMod.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_FRM_V1.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoMod.objects.select_related(
-    "respuesta_FRM", "respuesta_FRM__id_pregunta_FRM").values( "RutHash", "fecha_respuesta",  "respuesta_FRM__id_pregunta_FRM__pregunta_FRM", "respuesta_FRM__opc_respuesta_FRM").order_by('RutHash')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_FRM__id_pregunta_FRM__pregunta_FRM']
-        respuesta_usuario = respuesta['respuesta_FRM__opc_respuesta_FRM']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,  
-            respuesta_usuario, 
-            fecha_respuesta,  
-        ]
-        ws_FRM_V1.append(fila)
-    
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRM_V1)
-    background_colors(ws_FRM_V1)
-
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="FactoresMod_V1.xlsx"'
-
-    # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_mod_V2(request):
-
-    wb = Workbook()
-    ws_FRM_V2 = wb.active
-    ws_FRM_V2.title = "Factores de riesgo mod 2"
-    
-    preguntas =PregFactorRiesgoMod.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_FRM for pregunta in preguntas]
-    ws_FRM_V2.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoMod.objects.select_related(
-    "respuesta_FRM", "respuesta_FRM__id_pregunta_FRM").values( "RutHash", "fecha_respuesta",  "respuesta_FRM__id_pregunta_FRM__pregunta_FRM", "respuesta_FRM__opc_respuesta_FRM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_FRM__id_pregunta_FRM__pregunta_FRM']
-        respuesta_usuario = respuesta['respuesta_FRM__opc_respuesta_FRM']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_FRM, '')
-            fila.append(respuesta)
-        ws_FRM_V2.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRM_V2)
-    background_colors(ws_FRM_V2)
-
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="FactoresMod_V2.xlsx"'
-
-    # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_no_mod_V1(resquest):
-
-    wb = Workbook()
-    ws_FRNM_V1 = wb.active
-    ws_FRNM_V1.title = "Factores de riesgo No mod"
-
-    preguntas =PregFactorRiesgoNoMod.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_FRNM_V1.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoNoMod.objects.select_related(
-    "respuesta_FRNM", "respuesta_FRNM__id_pregunta_FRNM").values( "RutHash", "fecha_respuesta",  "respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM","respuesta_FRNM__opc_respuesta_FRNM").order_by('RutHash')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM']
-        respuesta_usuario = respuesta['respuesta_FRNM__opc_respuesta_FRNM']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,
-            respuesta_usuario,
-            fecha_respuesta, 
-        ]
-        ws_FRNM_V1.append(fila)
-
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRNM_V1)
-    background_colors(ws_FRNM_V1)
-
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="Factores No Mod_V1.xlsx"'
-
-    # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_no_mod_V2(resquest):
-
-    wb = Workbook()
-    ws_FRNM_V2 = wb.active
-    ws_FRNM_V2.title = "Factores de riesgo no mod"
-
-    preguntas =PregFactorRiesgoNoMod.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_FRNM for pregunta in preguntas]
-    ws_FRNM_V2.append(lista_preguntas)
-
-    usuarios_respuestas = RespUsuarioFactorRiesgoNoMod.objects.select_related(
-    "respuesta_FRNM", "respuesta_FRNM__id_pregunta_FRNM").values( "RutHash", "fecha_respuesta",  "respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM", "respuesta_FRNM__opc_respuesta_FRNM")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_FRNM__id_pregunta_FRNM__pregunta_FRNM']
-        respuesta_usuario = respuesta['respuesta_FRNM__opc_respuesta_FRNM']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_FRNM, '')
-            fila.append(respuesta)
-        ws_FRNM_V2.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_FRNM_V2)
-    background_colors(ws_FRNM_V2)
-
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="Factores No Mod_V2.xlsx"'
-
-    # Guardar el archivo en la respuesta HTTP
-    wb.save(response)
-    return response
-
-def crear_excel_DS1(request):
-    wb = Workbook()
-    ws_DSV1 = wb.active
-    ws_DSV1.title = "Determinante Salud"
-
-    preguntas =PregDeterSalud.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
-    ws_DSV1.append(lista_preguntas)
-
-    usuarios_respuestas = RespDeterSalud.objects.select_related(
-    "respuesta_DS", "respuesta_DS__id_pregunta_DS").values("RutHash", "fecha_respuesta",  "respuesta_DS__id_pregunta_DS__pregunta_DS","respuesta_DS__opc_respuesta_DS").order_by('RutHash')
-
-    for respuesta in usuarios_respuestas:
-
-        pregunta = respuesta['respuesta_DS__id_pregunta_DS__pregunta_DS']
-        respuesta_usuario = respuesta['respuesta_DS__opc_respuesta_DS']
-        fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
-        fila = [
-            respuesta['RutHash'],
-            pregunta,
-            respuesta_usuario,
-            fecha_respuesta, 
-        ]
-        ws_DSV1.append(fila) 
-
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_DSV1)
-    background_colors(ws_DSV1)
-
-    # Preparar la respuesta HTTP
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="reporte_DS_V1.xlsx"'
-
-    # Guardar el archivo
-    wb.save(response)
-    return response
-
-def crear_excel_DS2(request):
-    wb = Workbook()
-    ws_DSV2 = wb.active
-    ws_DSV2.title = "Determinante Salud"
-
-    preguntas =PregDeterSalud.objects.all()
-    lista_preguntas = ['RutHash'] + [pregunta.pregunta_DS for pregunta in preguntas]
-    ws_DSV2.append(lista_preguntas)
-
-    usuarios_respuestas = RespDeterSalud.objects.select_related(
-    "respuesta_DS", "respuesta_DS__id_pregunta_DS").values("RutHash", "fecha_respuesta",  "respuesta_DS__id_pregunta_DS__pregunta_DS", "respuesta_DS__opc_respuesta_DS")
-
-    dict_respuestas = {}
-
-    for respuesta in usuarios_respuestas:
-        rut = respuesta['RutHash']
-        pregunta = respuesta['respuesta_DS__id_pregunta_DS__pregunta_DS']
-        respuesta_usuario = respuesta['respuesta_DS__opc_respuesta_DS']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
-
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
-        for pregunta in preguntas:
-            respuesta = respuestas_usuario.get(pregunta.pregunta_DS, '')
-            fila.append(respuesta)
-        ws_DSV2.append(fila) 
-   
-    # Ajustar ancho de columnas y color de fondo 
-    ajustar_ancho_columnas(ws_DSV2)
-    background_colors(ws_DSV2)
-
-    # Preparar la respuesta HTTP
-    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    response["Content-Disposition"] = 'attachment; filename="reporte_DS_V2.xlsx"'
-
-    # Guardar el archivo
     wb.save(response)
     return response
 
@@ -1060,47 +469,6 @@ def generar_grafico_respuestas_por_dia():
 
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
-
-def generar_grafico_personas_por_genero_NUEVO():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT respuesta_FRNM_id, Count(*)
-            FROM botApp_respusuariofactorriesgonomod
-            WHERE respuesta_FRNM_id IN(1,2,3)
-            group by respuesta_FRNM_id; """
-            
-        )
-        resultados = cursor.fetchall()
-
-    generos = []
-    cantidades = []
-
-    for resultado in resultados:
-        genero_id, cantidad = resultado
-        genero = OpcFactorRiesgoNoMod.objects.get(id=genero_id)
-        generos.append(genero.opc_respuesta_FRNM)
-        cantidades.append(cantidad)
-
-    # Crear gráfico de barras con diferentes colores para cada barra
-    colores = {'Masculino': '#79addc', 'Femenino': '#EFB0C9', 'Otro': '#A5F8CE'}
-    plt.bar(generos, cantidades, color=[colores[genero] for genero in generos])
-
-    # Agregar los valores de cada barra
-    for i in range(len(generos)):
-        plt.text(i, cantidades[i], str(cantidades[i]), ha='center', va='bottom')
-   
-    plt.xlabel("Género")
-    plt.ylabel("Número de Personas")
-    plt.title("Ingresos por Género", pad=20)
-
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    plt.close()
-
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
     
 def generar_grafico_ingresos_por_comuna():
     with connection.cursor() as cursor:
@@ -1187,10 +555,10 @@ def generar_grafico_pregunta1():
 
     for resultado in resultados:
         id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = PreguntaOpcionRespuesta.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.OPC_Respuesta)
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
         sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.OPC_Respuesta} - {cantidad}")
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
 
     # Configurar el gráfico circular
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1228,10 +596,10 @@ def generar_grafico_pregunta2():
 
     for resultado in resultados:
         id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = PreguntaOpcionRespuesta.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.OPC_Respuesta)
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
         sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.OPC_Respuesta} - {cantidad}")
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
 
     # Configurar el gráfico circular
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1269,10 +637,10 @@ def generar_grafico_pregunta3():
 
     for resultado in resultados:
         id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = PreguntaOpcionRespuesta.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.OPC_Respuesta)
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
         sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.OPC_Respuesta} - {cantidad}")
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
 
     # Configurar el gráfico circular
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1310,10 +678,10 @@ def generar_grafico_pregunta4():
 
     for resultado in resultados:
         id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = PreguntaOpcionRespuesta.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.OPC_Respuesta)
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
         sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.OPC_Respuesta} - {cantidad}")
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
 
     # Configurar el gráfico circular
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1351,10 +719,10 @@ def generar_grafico_pregunta5():
 
     for resultado in resultados:
         id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = PreguntaOpcionRespuesta.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.OPC_Respuesta)
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
         sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.OPC_Respuesta} - {cantidad}")
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
 
     # Configurar el gráfico circular
     fig, ax = plt.subplots(figsize=(8, 8))
@@ -1365,52 +733,6 @@ def generar_grafico_pregunta5():
     
     # Mostrar el gráfico
     plt.title('¿Te gustaría recibir más información \nsobre el cuidado y prevención del cáncer de mama?', pad=20)
-
-    # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight')
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
-def generar_grafico_pregunta6():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """SELECT respuesta_FRNM_id, COUNT(*) 
-               FROM botApp_respusuariofactorriesgonomod
-               WHERE RutHash IN (
-               SELECT RutHash
-               FROM botApp_respusuariofactorriesgonomod
-               WHERE respuesta_FRNM_id = 1
-            )
-               AND respuesta_FRNM_id IN (4, 5, 6)
-               GROUP BY respuesta_FRNM_id;"""
-        )
-        resultados = cursor.fetchall()
-
-    labels = []
-    sizes = []
-    counts = []
-
-    for resultado in resultados:
-        id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = OpcFactorRiesgoNoMod.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.opc_respuesta_FRNM)
-        sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.opc_respuesta_FRNM} - {cantidad}")
-
-    # Configurar el gráfico circular
-    fig, ax = plt.subplots(figsize=(8, 8))
-    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
-    
-    # Configurar las etiquetas del gráfico
-    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    
-    # Mostrar el gráfico
-    plt.title('¿Tienes un familiar directo con cáncer de mama?\n(hermana, mama, tía, abuela)', pad=20)
 
     # Guardar la imagen en un buffer
     buffer = BytesIO()
@@ -1469,58 +791,6 @@ def generar_grafico_mamografia_si_por_edad():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
-def generar_grafico_mamo_si_por_familiar_directo():
-    
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT r.respuesta_FRNM_id, COUNT(DISTINCT r.RutHash) AS cantidad_respuestas
-            FROM botApp_respusuariofactorriesgonomod r 
-            JOIN botApp_usuariorespuesta ur_mamo ON r.RutHash = ur_mamo.RutHash
-            WHERE r.respuesta_FRNM_id IN (4, 5, 6)
-            AND r.RutHash IN (
-            SELECT DISTINCT r2.RutHash
-            FROM botApp_respusuariofactorriesgonomod r2
-            WHERE r2.respuesta_FRNM_id = 1
-            )
-            AND ur_mamo.id_opc_respuesta_id = 1  
-            GROUP BY r.respuesta_FRNM_id;
-            """
-        )
-        resultados = cursor.fetchall()
-
-    labels = []
-    sizes = []
-    counts = []
-
-    for resultado in resultados:
-        id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = OpcFactorRiesgoNoMod.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.opc_respuesta_FRNM)
-        sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.opc_respuesta_FRNM} - {cantidad}")
-
-    # Configurar el gráfico circular
-    fig, ax = plt.subplots()
-    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
-    
-    # Configurar las etiquetas del gráfico
-    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    
-    # Mostrar el gráfico
-    plt.title('Cantidad de usuarias que si se han realizado mamografías y tiene antecedentes familiares', pad=20)
-
-    # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight')
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
-
 def generar_grafico_mamografia_no_por_edad():
 
     with connection.cursor() as cursor:
@@ -1557,59 +827,6 @@ def generar_grafico_mamografia_no_por_edad():
     # Guardar la imagen en un buffer
     buffer = BytesIO()
     plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
-def generar_grafico_mamo_no_por_familiar_directo():
-    
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT r.respuesta_FRNM_id, COUNT(DISTINCT r.RutHash) AS cantidad_respuestas
-            FROM botApp_respusuariofactorriesgonomod r 
-            JOIN botApp_usuariorespuesta ur_mamo ON r.RutHash = ur_mamo.RutHash
-            WHERE r.respuesta_FRNM_id IN (4, 5, 6)
-            AND r.RutHash IN (
-            SELECT DISTINCT r2.RutHash
-            FROM botApp_respusuariofactorriesgonomod r2
-            WHERE r2.respuesta_FRNM_id = 1
-            )
-            AND ur_mamo.id_opc_respuesta_id = 2
-            GROUP BY r.respuesta_FRNM_id;
-
-           """
-
-        )
-        resultados = cursor.fetchall()
-
-    labels = []
-    sizes = []
-    counts = []
-
-    for resultado in resultados:
-        id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = OpcFactorRiesgoNoMod.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.opc_respuesta_FRNM)
-        sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.opc_respuesta_FRNM} - {cantidad}")
-
-    # Configurar el gráfico circular
-    fig, ax = plt.subplots()
-    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
-    
-    # Configurar las etiquetas del gráfico
-    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    
-    # Mostrar el gráfico
-    plt.title('Cantidad de usuarias que no se han realizado mamografías y tiene antecedentes familiares', pad=20)
-
-    # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight')
     buffer.seek(0)
     plt.close()
 
@@ -1993,92 +1210,6 @@ def grafico_prev_salud_por_rango_edad():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
-def grafico_escolaridad():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT respuesta_DS_id, COUNT(*) 
-            FROM botApp_respdetersalud us JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND respuesta_DS_id IN (1,2,3) 
-            GROUP BY respuesta_DS_id;
-            """
-        )
-        resultados = cursor.fetchall()
-
-    labels = []
-    sizes = []
-    counts = []
-
-    for resultado in resultados:
-        id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = OpcDeterSalud.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.opc_respuesta_DS)
-        sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.opc_respuesta_DS} - {cantidad}")
-
-    # Configurar el gráfico circular
-    fig, ax = plt.subplots(figsize=(8, 8))
-    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
-    
-    # Configurar las etiquetas del gráfico
-    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    
-    # Mostrar el gráfico
-    plt.title('Nivel de estudio usuarias', pad=20)
-
-    # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight')
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
-def grafico_frecuencia_alcohol():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT respuesta_FRM_id, COUNT(*) 
-            FROM botApp_respusuariofactorriesgomod us JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND respuesta_FRM_id IN (3,4,5) 
-            GROUP BY respuesta_FRM_id;
-            """
-        )
-        resultados = cursor.fetchall()
-
-    labels = []
-    sizes = []
-    counts = []
-
-    for resultado in resultados:
-        id_opc_respuesta, cantidad = resultado
-        opcion_respuesta = OpcFactorRiesgoMod.objects.get(id=id_opc_respuesta)
-        labels.append(opcion_respuesta.opc_respuesta_FRM)
-        sizes.append(cantidad)
-        counts.append(f"{opcion_respuesta.opc_respuesta_FRM} - {cantidad}")
-
-    # Configurar el gráfico circular
-    fig, ax = plt.subplots(figsize=(8, 8))
-    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
-    
-    # Configurar las etiquetas del gráfico
-    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
-    
-    # Mostrar el gráfico
-    plt.title('Consumo de Alcohol', pad=20)
-
-    # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png", bbox_inches='tight')
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
 @login_required
 def reportes(request):
     data = {
@@ -2090,7 +1221,6 @@ def reportes(request):
         "imagen_base64_pregunta3": generar_grafico_pregunta3(),
         "imagen_base64_pregunta4": generar_grafico_pregunta4(),
         "imagen_base64_pregunta5": generar_grafico_pregunta5(),
-        "imagen_base64_pregunta6": generar_grafico_pregunta6(),  
         "imagen_base64_referencias": generar_grafico_referencias(), 
         "imagen_base64_anios_nacimiento": generar_grafico_anio_nacimiento(),
         "imagen_base64_mamografia_si_por_edad":generar_grafico_mamografia_si_por_edad(),
@@ -2099,24 +1229,20 @@ def reportes(request):
         "imagen_base64_tiempo_transc": generar_grafico_tiempo_trascurrido(),
         "imagen_base64_rango_edad": generar_grafico_por_rango_edad(),
         "imagen_base64_mamografia_si_no_rango_edad": mamografia_por_edad_si_no_rango_edad(),
-        "imagen_base64_mamo_si_por_familiar_directo":generar_grafico_mamo_si_por_familiar_directo(),
-        "imagen_base64_mamo_no_por_familiar_directo":generar_grafico_mamo_no_por_familiar_directo(),
         "imagen_base64_mamografia_si_no_rango_edad_agrupadas": mamografia_por_edad_si_no_rango_edad_agrupado(),
         "imagen_base64_grafico_prev_salud_por_rango_edad":grafico_prev_salud_por_rango_edad(),
-        "imagen_base64_grafico_consumo_alcohol":grafico_frecuencia_alcohol(),
-        "imagen_base64_grafico_escolaridad":grafico_escolaridad(),
-        "imagen_base64_grafico_genero_nuevo":generar_grafico_personas_por_genero_NUEVO(), 
-        
         }
     return render(request, "reportes.html", data)
 
 
 # --------------------- Formulario WEB --------------------- #
+
+"""
 @login_required
 def formulario(request):
     data = {
         "formUsuario": UsuarioForm(),
-        "preguntas": Pregunta.objects.all(),
+        "preguntas": PregTamizaje.objects.all(),
         "usuarios": User.objects.all(),
     }
 
@@ -2129,7 +1255,7 @@ def formulario(request):
 
             for pregunta in data["preguntas"]:
                 respuesta = request.POST.get(f"pregunta_{pregunta.id}")
-                opc_respuesta = OPC_Respuesta(
+                opc_respuesta = opc_respuesta_TM(
                     id_pregunta=pregunta, OPC_Respuesta=respuesta
                 )
                 opc_respuesta.save()
@@ -2154,19 +1280,19 @@ def formulario(request):
 
     return render(request, "formulario.html", data)
 
-
+"""
 # --------------------- Preguntas --------------------- #
 
 # Listar Preguntas
 @login_required
 def listarPreguntas(request):
-    Preguntas = Pregunta.objects.all()
+    Preguntas = PregTamizaje.objects.all()
     data = {
         "preguntas": Preguntas,
     }
     return render(request, "preguntas/listarPreguntas.html", data)
 
-
+"""
 # Modificar Pregunta
 @login_required
 def modificarPregunta(request, id):
@@ -2210,7 +1336,7 @@ def crearPregunta(request):
 
     return render(request, "preguntas/crearPreguntas.html", data)
 
-
+"""
 # --------------------- Mensajes --------------------- #
 @login_required
 def homeMensajes(request):
@@ -2271,53 +1397,20 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 
 #RespuestaUsuario
 class UsuarioRespuestaViewSet(viewsets.ModelViewSet):
-    queryset = UsuarioRespuesta.objects.all()
+    queryset = RespUsuarioTamizaje.objects.all()
     serializer_class = UsuarioRespuestaSerializer
 
-#TextoPreguntaUsuario
-class UsuarioTextoPreguntaViewSet(viewsets.ModelViewSet):
-    queryset = UsuarioTextoPregunta.objects.all()
-    serializer_class = UsuarioTextoPreguntaSerializer
-    
 #MensajeContenido
 class MensajeContenidoViewSet(viewsets.ModelViewSet):
     queryset = MensajeContenido.objects.all()
     serializer_class = MensajeContenidoSerializer
 
-#Factor riesgo no modificable
-class FRNMViewSet(viewsets.ModelViewSet):
-    queryset = RespUsuarioFactorRiesgoNoMod.objects.all()
-    serializer_class = UsuarioRespuestaFRNMSerializer
-
-#Factor riesgo modificable
-class FRMViewSet(viewsets.ModelViewSet):
-    queryset = RespUsuarioFactorRiesgoMod.objects.all()
-    serializer_class = UsuarioRespuestaFRMSerializer
-
-#Determinante salud
-class DSViewSet(viewsets.ModelViewSet):
-    queryset = RespDeterSalud.objects.all()
-    serializer_class = UsuarioRespuestaDSSerializer
-
-# Respuesta Texto Peso y Altura (FRM)
-class RespTextoFRMViewSet(viewsets.ModelViewSet):
-    queryset = RespTextoFRM.objects.all()
-    serializer_class = RespTextoFRMSerializer
-
 class UsuarioRespuestaAPIView(APIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAdminUser]
     def get(self, request):
-        respuestas = UsuarioRespuesta.objects.all()
+        respuestas = RespUsuarioTamizaje.objects.all()
         serializer = UsuarioRespuestaSerializer(respuestas, many=True)
-        return Response(serializer.data)
-
-class UsuarioTextoPreguntaAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAdminUser]
-    def get(self, request):
-        textos_pregunta = UsuarioTextoPregunta.objects.all()
-        serializer = UsuarioTextoPreguntaSerializer(textos_pregunta, many=True)
         return Response(serializer.data)
 
 class UsuarioAPIView(APIView):
@@ -2351,30 +1444,6 @@ class ObtenerID(APIView):
             # Si no se encuentra ningún registro para la fecha de hoy, devolver un código de error
             return Response({'error_code': '1'})
         
-class UsuarioRespuestFRNMaAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAdminUser]
-    def get(self, request):
-        respuestas = RespUsuarioFactorRiesgoNoMod.objects.all()
-        serializer = UsuarioRespuestaFRNMSerializer(respuestas, many=True)
-        return Response(serializer.data)
-    
-class UsuarioRespuestFRMaAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAdminUser]
-    def get(self, request):
-        respuestas = RespUsuarioFactorRiesgoMod.objects.all()
-        serializer = UsuarioRespuestaFRMSerializer(respuestas, many=True)
-        return Response(serializer.data)
-    
-class RespTextoFRMAPIView(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAdminUser]
-    def get(self, request):
-        respuestas = RespTextoFRM.objects.all()
-        serializer = RespTextoFRMSerializer(respuestas, many=True)
-        return Response(serializer.data)
-
 # --------------------- Api --------------------- #
 def obtener_usuario(request, usuario_id):
     try:
@@ -2389,10 +1458,7 @@ def obtener_usuario(request, usuario_id):
     except Usuario.DoesNotExist:
         return JsonResponse({"error": "Usuario no encontrado"}, status=404)
 
-def generar_hash(valor):
-    """Genera el hash SHA-256 del Rut"""
-    return hashlib.sha256(valor.encode()).hexdigest()
-
+"""
 @csrf_exempt
 def consultar_estado_pregunta(request):
     if request.method != "POST":
@@ -2445,13 +1511,16 @@ def consultar_estado_pregunta(request):
             respondido = len(respuesta) > 0
 
         # Verificación específica para peso y altura
-        """if "peso" in data["nombre_pregunta"].lower() or "altura" in data["nombre_pregunta"].lower():
+
+        """
+"""
+            if "peso" in data["nombre_pregunta"].lower() or "altura" in data["nombre_pregunta"].lower():
             calculo_model = CalculoFRM.objects.filter(RutHash=rut_encriptado).first()
             if calculo_model:
                 # Verificar si ambos valores (peso y altura) están presentes y son mayores que 0
                 if calculo_model.peso_mod > 0 and calculo_model.altura_mod > 0:
                     respondido = True"""
-
+"""
     elif data["tipo_pregunta"] == "FRNM":
         pregunta_model = PregFactorRiesgoNoMod.objects.filter(pregunta_FRNM=data["nombre_pregunta"]).first()
         if pregunta_model:
@@ -2524,3 +1593,4 @@ def verificar_usuario(request):
         # Manejo de errores inesperados
         return JsonResponse({"error": f"Error interno del servidor: {str(e)}"}, status=500)
 
+"""

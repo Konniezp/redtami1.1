@@ -67,12 +67,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         
 class UsuarioRespuestaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UsuarioRespuesta
-        fields = "__all__"
-        
-class UsuarioTextoPreguntaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UsuarioTextoPregunta
+        model = RespUsuarioTamizaje
         fields = "__all__"
         
 class MensajeContenidoSerializer(serializers.ModelSerializer):
@@ -80,22 +75,3 @@ class MensajeContenidoSerializer(serializers.ModelSerializer):
         model = MensajeContenido
         fields = "__all__"
 
-class UsuarioRespuestaFRNMSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RespUsuarioFactorRiesgoNoMod
-        fields = "__all__"
-
-class UsuarioRespuestaFRMSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RespUsuarioFactorRiesgoMod
-        fields = "__all__"
-
-class UsuarioRespuestaDSSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RespDeterSalud
-        fields = "__all__"
-
-class RespTextoFRMSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RespTextoFRM
-        fields = "__all__"
