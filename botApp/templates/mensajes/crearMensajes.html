@@ -1,0 +1,32 @@
+{% extends 'base.html' %} 
+{% block title %}Crear Mensaje{% endblock %} 
+
+{% block content %}
+
+
+<section>
+    <h2 class="major">Crear Mensaje</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form }}
+        <br>
+        <button type="submit">Guardar</button>
+    </form>
+    <a class="button" href="{% url 'home' %}">Volver</a>
+</section>
+
+<style>
+    section {
+        margin: 0 auto;
+        width: 50%;
+    }
+
+    .dark-input {
+        background-color: #333;
+         color: #fff;
+    }
+</style>
+
+
+
+{% endblock %}

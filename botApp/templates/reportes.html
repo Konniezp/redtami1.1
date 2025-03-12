@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block content %}
+
+<h2 class="major">Reportes</h2>
+<a class="button" href="{% url 'home' %}">Volver</a>
+
+<section id="reportes">
+    
+    <div class="chart-container">
+            <h2>Género</h2>
+            <img src="data:imagen/png;base64,{{imagen_base64_grafico_genero_nuevo}}" alt="genero_nuevo", style="width: 45%; height: auto;">               
+            <br><br>
+            <h2>Usuarias por edad</h2>
+            <img src="data:imagen/png;base64,{{imagen_base64_edad}}" alt="Personas por edad", style="width: 90%; height: auto;">
+            <br><br>
+            <h2>Usuarias por rango de edad </h2>
+                <img src="data:image/png;base64,{{imagen_base64_rango_edad}}" alt="Usuarias por rango de edad", style="width: 90%; height: auto;">
+                <br><br>  
+            <h2>Se ha realizado mamografía: si/no por rango de edad</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamografia_si_no_rango_edad}}" alt="Mamografia si/no por rango de edad", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Se ha realizado mamografía: si/no por rango de edad barras agrupadas</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamografia_si_no_rango_edad_agrupadas}}" alt="Mamografia si/no por rango de edad agrupado", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Usuarias por año de nacimiento</h2>
+            <img src="data:image/png;base64,{{ imagen_base64_anios_nacimiento }}" alt="Personas por año de nacimiento", style="width: 90%; height: auto;">
+            <br><br>
+            <h2>Respuestas preguntas</h2>
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta1 }}" alt="¿Te has realizado una mamografía?", style="width: 45%; height: auto;">
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta2 }}" alt="¿Recuerdas cuando fue tu última mamografía?", style="width: 45%; height: auto;">
+            <br><br>
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta3 }}" alt="Fecha de última mamografía", style="width: 45%; height: auto;">
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta4 }}" alt="¿Tienes los archivos de tu última mamografía?", style="width: 45%; height: auto;">
+            <br><br>
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta5 }}" alt="¿Te gustaría recibir más información?", style="width: 45%; height: auto;">
+            <img src="data:image/png;base64,{{ imagen_base64_pregunta6 }}" alt="¿Tienes un familiar directo con cáncer de mama?", style="width: 45%; height: auto;">
+            <br><br>
+            <h2>Ingresos por día</h2>
+            <img src="data:image/png;base64,{{ imagen_base64_ingresos }}" alt="Ingresos por día", style="width: 60%; height: auto;">
+            <br><br>
+            <h2>Ingresos por comuna</h2>
+                <img src="data:image/png;base64,{{ imagen_base64_ingresos_comuna }}" alt="Ingresos por comuna", style="width: 60%; height: auto;">
+                <br><br>
+            <h2>Referencias</h2>
+                <img src="data:image/png;base64,{{ imagen_base64_referencias }}" alt="Referencias", style="width: 60%; height: auto;">
+                <br><br>
+            <h2>Mamografía por edad Respuesta Si</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamografia_si_por_edad}}" alt="Mamografia respuesta si por edad", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Gráfico que si se ha realizado mamografía y cuenta con antecedentes familiares</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamo_si_por_familiar_directo}}" alt ="Mamografia Si por familiar directo", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Mamografía por edad Respuesta No</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamografia_no_por_edad}}" alt="Mamografia respuesta no por edad", style="width: 90%; height: auto;">    
+                <br><br>
+                <br><br>
+            <h2>Gráfico que no se ha realizado mamografía y cuenta con antecedentes familiares</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamo_no_por_familiar_directo}}" alt ="Mamografia no por familiar directo", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Se ha realizado mamografía: si/no por edad</h2>
+                <img src="data:image/png;base64,{{imagen_base64_mamografia_por_edad_si_no}}" alt="Mamografia por edad si/no", style="width: 90%; height: auto;"> 
+                <br><br>
+            <h2>Tiempo transcurrido desde última mamografía</h2>
+                <img src="data:image/png;base64,{{imagen_base64_tiempo_transc}}" alt="Tiempo transcurrido", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Sistema de salud</h2>
+                <img src="data:imagen/png;base64,{{imagen_base64_grafico_prev_salud_por_rango_edad}}" alt="Sistema de salud", style="width: 90%; height: auto;">
+                <br><br>
+            <h2>Consumo de alcohol</h2>
+                <img src="data:imagen/png;base64,{{imagen_base64_grafico_consumo_alcohol}}" alt="Consumo de Alcohol", style="width: 45%; height: auto;">
+                <br><br>
+            <h2>Escolaridad de las Usuarias</h2>
+                <img src="data:imagen/png;base64,{{imagen_base64_grafico_escolaridad}}" alt="Escolaridad", style="width: 45%; height: auto;">
+                <br><br>   
+    </div>
+<a class="button" href="{% url 'home' %}">Volver</a>
+</section>
+
+
+<style>
+    .chart-container {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    section#reportes {
+        text-align: center;
+    }
+</style>
+
+{% endblock %}

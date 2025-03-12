@@ -1,0 +1,27 @@
+{% extends 'base.html' %} 
+{% block title %}Crear Pregunta{% endblock %} 
+
+{% block content %}
+
+<!-- Crear Pregunta -->
+<section>
+    <h2 class="major">Crear Pregunta</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form }}
+        <br>
+        <button type="submit">Guardar</button>
+    </form>
+    <a class="button" href="{% url 'home' %}">Volver</a>
+</section>
+
+<style>
+    section {
+        margin: 0 auto;
+        width: 50%;
+    }
+</style>
+
+
+
+{% endblock %}

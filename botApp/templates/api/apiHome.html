@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Apis{% endblock %}
+
+{% block content %}
+
+
+<!-- Wrapper -->
+<div id="wrapper">
+    <!-- Header -->
+    <header id="header">
+      <div class="logo">
+        <span class="fas fa-home"></span>
+      </div>
+      <div class="content">
+        <div class="inner">
+          <h1>Menú Api's</h1>
+        </div>
+      </div>
+      <button onclick="window.location.href='{% url 'api_mensaje' %}'">Mensajes a usuarios</button>
+      <button onclick="window.location.href='{% url 'api_pregunta' %}'">Preguntas a especialistas</button>
+      <button onclick="window.location.href='{% url 'api_usuario' %}'">Usuarios</button>
+      <button onclick="window.location.href='{% url 'api_respuesta' %}'">Respuestas del Usuario</button>
+      <button type="button" onclick="location.href='{% url 'home' %}'">Volver</button>
+    </header>
+  
+    
+    <!-- Footer -->
+    <footer id="footer">
+      <p class="copyright">&copy; Untitled.</p>
+    </footer>
+  </div>
+  
+  <!-- BG -->
+  <div id="bg"></div>
+
+{% endblock %}

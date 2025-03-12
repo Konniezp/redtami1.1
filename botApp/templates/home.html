@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %} 
+{% block content %}
+
+<!-- Wrapper -->
+<div id="wrapper">
+  <!-- Header -->
+  <header id="header">
+    <div class="logo">
+      <span class="fas fa-home"></span>
+    </div>
+    <div class="content">
+      <div class="inner">
+        <h1>Bienvenido</h1>
+      </div>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="{% url 'formulario' %}">Formulario Web</a></li>
+        <li><a href="{% url 'respuestasHome' %}">Respuestas del Usuario</a></li>
+        <li><a href="{% url 'reportes' %}">Reportes</a></li>
+		    <li><a href="{% url 'listarPreguntas' %}">Listado Preguntas</a></li>
+		    <li><a href="{% url 'crearPregunta' %}">Crear Preguntas</a></li>
+        {% if user.is_staff %}
+        <li><a href="{% url 'apiHome' %}">Api's</a></li>
+        <li><a href="{% url 'mensajesHome' %}">Listado Mensajes</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Cerrar Sesión</button>
+    </form>
+  </header>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p class="copyright">&copy; Untitled.</p>
+  </footer>
+</div>
+
+<!-- BG -->
+<div id="bg"></div>
+{% endblock %}

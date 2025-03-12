@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Datos del Perfil{% endblock %}
+
+{% block content %}
+<h2 class="major">Datos del Perfil</h2>
+<a class="button" href="{% url 'respuestasHome' %}">Volver</a>
+<section id="usuarios">
+    {% if Datos %}
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <td colspan="13"><b>Total de respuestas: {{ Datos|length }}</b></td>
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>ID Manichat</th>
+                    <th>Rut Usuario</th>
+                    <th>Whatsapp</th>
+                    <th>Email Usuario</th>
+                    <th>Referencia</th>
+                    <th>Año de nacimiento</th>
+                    <th>Comuna</th>
+                    <th>Fecha de ingreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dato in Datos %}
+                <tr>
+                    <td>{{ forloop.counter }}
+                    <td>{{ dato.id }}</td>
+                    <td>{{ dato.id_manychat }}</td>
+                    <td>{{ dato.RutHash }}</td>
+                    <td>{{ dato.Whatsapp }}</td>
+                    <td>{{ dato.Email}}</td>
+                    <td>{{ dato.Referencia }}</td>
+                    <td>{{ dato.AnioNacimiento }}</td>
+                    <td>{{ dato.Comuna_Usuario }}</td>
+                    <td>{{ dato.Fecha_Ingreso }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No hay datos ingresados</p>
+    {% endif %}
+
+    <a class="button" href="{% url 'respuestasHome' %}">Volver</a>
+</section>
+
+<style>
+    #usuarios {
+        margin-top: 2em;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 90%; 
+        margin: 0 auto; 
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px auto; 
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>
+
+{% endblock %}

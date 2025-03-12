@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Listado Ordenable{% endblock %}
+
+{% block content %}
+<h2 class="major">Datos Listado Ordenable</h2>
+<a class="button" href="{% url 'respuestasHome' %}">Volver</a>
+
+<section id = "usuarios" >
+    {% if Datos %}
+    <div class = "table-wrapper">
+
+        <table border="1">
+            <thead>
+                <tr>
+                    <td colspan="8"><b>Total de respuestas: {{ Datos|length }}</b></td>
+                </tr>
+                <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>Rut</th>
+                    <th>WhatsApp</th>
+                    <th>Email usuario</th>
+                    <th>Edad</th>
+                    <th>Antecedentes familiares</th>
+                    <th>Tiempo transcurrido</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dato in Datos %}
+                <tr>
+                    <td>{{ forloop.counter }}
+                    <td>{{ dato.id }}</td>
+                    <td>{{ dato.Rut }}</td>
+                    <td>{{ dato.Whatsapp }}</td>
+                    <td>{{ dato.Email }}</td>
+                    <td>{{ dato.edad }}</td>
+                    <td>{{ dato.Antecedentes_familiares}}</td>
+                    <td>{{ dato.Ult_mamografia }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No hay datos ingresados</p>
+    {% endif%}
+
+    <div style="text-align: center;">
+        <form action="{% url 'crear_excel_listado_ordenable' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Descargar como Excel</button>
+        </form>
+    </div>
+
+    <a class="button" href="{% url 'respuestasHome' %}">Volver</a>
+</secion>
+
+<style>
+    #usuarios {
+        margin-top: 2em;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        max-width: 90%; 
+        margin: 0 auto; 
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px auto; 
+    }
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: white;
+        text-align: left;
+    }
+</style>
+
+{% endblock %}

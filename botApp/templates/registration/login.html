@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div id="wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <div class="logo">
+            <span class="icon fa-user"></span>
+        </div>
+        <div class="content">
+            <div class="inner">
+                <h1>Ingresar a tu cuenta</h1>
+                <p>Ingresa tus datos para iniciar sesión</p>
+            </div>
+        </div>
+        <nav>
+            <form action="/login/" method="post">
+                {% csrf_token %}
+                <ul>
+                    <li>
+                        <input type="text" name="username" placeholder="Usuario" required>
+                        <input type="password" name="password" placeholder="Contraseña" required>
+                    </li>
+                </ul>
+                <br>
+                <input type="submit" value="Ingresar">
+            </form>
+        </nav>
+    </header>
+</div>
+
+
+    {% endblock %}
+    ```

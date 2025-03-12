@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Factores riesgo no modificables{% endblock %}
+
+{% block content %}
+
+<h2 class="major">Factores Riesgos No Modificables</h2>
+
+<section>
+    <nav>
+
+        <a href="{% url 'datosFRNM' %}">
+            <button>Opción visualización 1</button>
+        </a>
+        <a href="{% url 'datosFRNM2' %}">
+        <button>Opción visualización 2</button>
+        </a>
+    </nav>
+    <a class="button" href="{% url 'respuestasHome' %}">Volver</a>
+</section>
+<style>
+    h2.major {
+        font-size: 2rem; 
+        text-align: center; 
+        word-wrap: break-word; 
+        margin: 10px auto;
+        max-width: 90%; 
+    }
+    
+    @media (max-width: 768px) {
+        h2.major {
+            font-size: 1.5rem; /* Reduce el tamaño en móviles */
+        }
+    }
+    
+    @media (max-width: 480px) {
+        h2.major {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}

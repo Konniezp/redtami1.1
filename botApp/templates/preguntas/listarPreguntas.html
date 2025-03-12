@@ -1,0 +1,69 @@
+{% extends 'base.html' %} 
+{% block title %}Lista de Preguntas{% endblock %}
+{%block content %}
+<div class="container">
+  <h2 class="major">Preguntas</h2>
+
+  {% if preguntas %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID_Pregunta</th>
+        <th>Pregunta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for pregunta in preguntas %}
+      <tr>
+        <td>{{ pregunta.id }}</td>
+        <td>{{ pregunta.pregunta }}</td>
+        <td>
+          <a href="{% url 'modificarPregunta' pregunta.id %}">Editar</a>
+          <a href="#" onclick="eliminarPregunta({{ pregunta.id }})">Eliminar</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No hay preguntas ingresadas</p>
+  {% endif %}
+
+  <div class="button-container">
+    <a class="button" href="{% url 'home' %}">Volver</a>
+    <a class="button" id="buttonCreate" href="{% url 'crearPregunta' %}"
+      >Crear Pregunta</a
+    >
+  </div>
+</div>
+
+<script>
+  function eliminarPregunta(idPregunta) {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminarlo",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirige a la URL de eliminación
+        window.location.href = "{% url 'eliminarPregunta' 0 %}".replace(
+          "0",
+          idPregunta
+        );
+      }
+    });
+  }
+</script>
+
+<style>
+  #buttonCreate {
+    margin-left: 20px;
+  }
+</style>
+
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% block title %}Lista de mensajes{% endblock %} 
+{% block content %}
+
+<div class="container">
+  <h2 class="major">Mensajes</h2>
+  <div class="button-container">
+    <a class="button" href="{% url 'home' %}">Volver</a>
+    <a class="button" id="buttonCreate" href="{% url 'crearMensaje' %}"
+      >Crear Mensaje</a
+    >
+    
+  </div>
+  <br>
+  <div class="container">
+  {% if mensajes %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID_Mensaje</th>
+        <th>Mensaje</th>
+        <th>Fecha</th>
+        <th>Genero</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mensaje in mensajes %}
+      <tr>
+        <td>{{ mensaje.id }}</td>
+        <td>{{ mensaje.texto }}</td>
+        <td>{{ mensaje.fecha }}</td>
+        <td>{{ mensaje.Genero_Usuario }}</td>
+        <td>
+          <a href="{% url 'modificarMensaje' mensaje.id %}">Editar</a>
+          <a href="#" onclick="eliminarMensaje({{ mensaje.id }})">Eliminar</a>
+        </td>
+      </tr>
+
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No hay mensajes ingresados</p>
+  {% endif %}
+  </div>
+
+  <div class="button-container">
+    <a class="button" href="{% url 'home' %}">Volver</a>
+    <a class="button" id="buttonCreate" href="{% url 'crearMensaje' %}"
+      >Crear Mensaje</a
+    >
+  </div>
+</div>
+
+<script>
+  function eliminarMensaje(idMensaje) {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esto",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminarlo",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirige a la URL de eliminación
+        window.location.href = "{% url 'eliminarMensaje' 0 %}".replace(
+          "0",
+          idMensaje
+        );
+      }
+    });
+  }
+</script>
+
+<style>
+  #buttonCreate {
+    margin-left: 20px;
+  }
+</style>
+
+{% endblock %} ```

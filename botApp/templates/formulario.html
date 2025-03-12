@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Formulario{% endblock %}
+
+{% block content %}
+
+<section id="formulario">
+    <h2 class="major">Formulario</h2>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <h3>Datos personales</h3>
+
+        <!-- Formulario 1-->
+
+        <!-- Seleccion ID usuarios -->
+        <div class="form-group">
+            <label for="id_usuario">Seleccionar ID de Usuario:</label>
+            <select name="id_usuario" id="id_usuario" class="form-control">
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}">{{ usuario.id }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Rut -->
+        <div class="form-group">
+            <label for="{{ form.Rut_Usuario.id_for_label }}">Rut:</label>
+            {{ formUsuario.RutHash }}
+        </div>
+
+        <!-- Whatsapp -->
+        <div class="form-group">
+            <label for="{{ form.Whatsapp_Usuario.id_for_label }}">Whatsapp:</label>
+            {{ formUsuario.Whatsapp }}
+        </div>
+
+        <!-- Año de nacimiento -->
+        <div class="form-group" id="anioNac">
+            <label for="{{ form.AnioNacimiento.id_for_label }}">Año de nacimiento:</label>
+            {{ formUsuario.AnioNacimiento }}
+        </div>
+
+        <!-- Comuna -->
+        <div class="form-group">
+            <label for="id_comuna">Comuna:</label>
+            {{ formUsuario.Comuna_Usuario }}
+        </div>
+
+        <!-- Género -->
+        <div class="form-group">
+            <label for="id_genero">Género:</label>
+            {{ formUsuario.Genero_Usuario }}
+        </div>
+
+        <!-- Sistema de Salud -->
+        <div class="form-group">
+            <label for="{{ form.SistemaSalud_Usuario.id_for_label }}">Sistema de Salud:</label>
+            {{ formUsuario.SistemaSalud_Usuario }}
+        </div>
+
+        <!-- Ocupación -->
+        <div class="form-group">
+            <label for="{{ form.Ocupacion_Usuario.id_for_label }}">Ocupación:</label>
+            {{ formUsuario.Ocupacion_Usuario }}
+        </div>
+
+        <!-- Formulario 2-->
+        <h3>Antecedentes de salud</h3>
+
+        <!-- Preguntas -->
+        <div class="form-group">
+            {% for pregunta in preguntas %}
+                <label for="pregunta_{{ pregunta.id }}">{{ pregunta.pregunta }}</label>
+                <input type="text" name="pregunta_{{ pregunta.id }}" id="pregunta_{{ pregunta.id }}" class="dark-input">
+                <br>
+            {% endfor %}
+        </div>
+
+
+        <!-- Botón de enviar -->
+        <button type="submit" class="button">Enviar</button>
+    </form>
+    <a class="button" href="{% url 'home' %}">Volver</a>
+</section>
+
+<style>
+    .dark-input {
+        background-color: #333;
+		color: #fff;
+    }
+
+    #formulario {
+        margin: 0 auto;
+        width: 50%;
+    }
+
+    #formulario form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #formulario form .form-group {
+        margin-bottom: 1rem;
+    }
+
+    #formulario form .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    #formulario form .form-group select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #formulario form .form-group input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #formulario form .form-group button {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #ccc;
+        color: #000;
+        cursor: pointer;
+    }
+
+    #formulario form .form-group button:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    #formulario form .form-group a {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #ccc;
+        color: #000;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    #formulario form .form-group a:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    @media screen and (max-width: 768px) {
+        #formulario {
+            width: 100%;
+        }
+    }
+
+</style>
+
+{% endblock %}
