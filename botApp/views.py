@@ -354,10 +354,9 @@ def generar_grafico_usuario_por_edad():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT edad, COUNT(*) 
-            FROM botApp_usuario u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1)
+            FROM botApp_usuario 
             GROUP BY edad 
-            ORDER BY edad; """
+            ORDER BY edad;"""
         )
         resultados = cursor.fetchall()
 
@@ -391,13 +390,11 @@ def generar_grafico_usuario_por_edad():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
-
 def generar_grafico_anio_nacimiento():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT YEAR(AnioNacimiento) as anio, COUNT(*) 
-            FROM botApp_usuario u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1)
+            FROM botApp_usuario 
             GROUP BY YEAR(AnioNacimiento) ORDER BY anio ASC;"""
         )
         resultados = cursor.fetchall()
@@ -409,7 +406,6 @@ def generar_grafico_anio_nacimiento():
         anio, cantidad = resultado
         anios.append(anio)
         cantidades.append(cantidad)
-
     
     plt.figure(figsize=[18, 8])
     plt.bar(anios, cantidades, color="#79addc")
@@ -436,9 +432,8 @@ def generar_grafico_respuestas_por_dia():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT DATE(Fecha_Ingreso), COUNT(*) 
-            FROM botApp_usuario u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1)
-            GROUP BY DATE(Fecha_Ingreso); """
+            FROM botApp_usuario 
+            GROUP BY DATE(Fecha_Ingreso);  """
         )
         resultados = cursor.fetchall()
 
@@ -450,7 +445,6 @@ def generar_grafico_respuestas_por_dia():
         fechas.append(datetime.strftime(fecha, "%d-%m-%Y"))
         cantidades.append(cantidad)
 
- 
     plt.plot(fechas, cantidades, marker="o", linestyle="-", color="#79addc")
     plt.xlabel("Fecha de Respuesta")
     plt.ylabel("Número de Respuestas")
@@ -469,17 +463,13 @@ def generar_grafico_respuestas_por_dia():
 
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
-    
+
 def generar_grafico_ingresos_por_comuna():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT c.nombre_comuna, COUNT(*) AS TotalIngresos 
+            """SELECT c.nombre_comuna, COUNT(*) AS TotalIngresos 
             FROM botApp_comuna c JOIN botApp_usuario u ON u.Comuna_Usuario_id = c.cod_comuna 
-            JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1)
-            GROUP BY c.nombre_comuna
-            """
+            GROUP BY c.nombre_comuna;"""
         )
         resultados = cursor.fetchall()
 
@@ -510,8 +500,7 @@ def generar_grafico_referencias():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT u.Referencia, COUNT(*) AS TotalIngresos 
-            FROM botApp_usuario u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-             WHERE respuesta_FRNM_id IN (1)
+            FROM botApp_usuario u 
             GROUP BY u.Referencia;"""
         )
         resultados = cursor.fetchall()
@@ -542,10 +531,10 @@ def generar_grafico_referencias():
 def generar_grafico_pregunta1():
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT id_opc_respuesta_id, COUNT(*) 
-            FROM botApp_usuariorespuesta u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1, 2, 3) 
-            GROUP BY id_opc_respuesta_id;"""
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje 
+            WHERE respuesta_TM_id IN (1, 2, 3) 
+            GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
 
@@ -583,10 +572,10 @@ def generar_grafico_pregunta1():
 def generar_grafico_pregunta2():
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT id_opc_respuesta_id, COUNT(*) 
-            FROM botApp_usuariorespuesta u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (7, 8, 9) 
-            GROUP BY id_opc_respuesta_id;"""
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje 
+            WHERE respuesta_TM_id IN (7, 8, 9) 
+            GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
 
@@ -624,10 +613,10 @@ def generar_grafico_pregunta2():
 def generar_grafico_pregunta3():
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT id_opc_respuesta_id, COUNT(*) 
-            FROM botApp_usuariorespuesta u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (10,11,12,13) 
-            GROUP BY id_opc_respuesta_id;"""
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje u 
+            WHERE respuesta_TM_id IN (10,11,12,13) 
+            GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
 
@@ -665,10 +654,10 @@ def generar_grafico_pregunta3():
 def generar_grafico_pregunta4():
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT id_opc_respuesta_id, COUNT(*) 
-            FROM botApp_usuariorespuesta u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (14, 15, 16, 17) 
-            GROUP BY id_opc_respuesta_id;"""
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje u 
+            WHERE respuesta_TM_id IN (14, 15, 16) 
+            GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
 
@@ -706,10 +695,10 @@ def generar_grafico_pregunta4():
 def generar_grafico_pregunta5():
     with connection.cursor() as cursor:
         cursor.execute(
-            """SELECT id_opc_respuesta_id, COUNT(*) 
-            FROM botApp_usuariorespuesta u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (18, 19, 20) 
-            GROUP BY id_opc_respuesta_id;"""
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje u
+            WHERE respuesta_TM_id IN (22, 23, 24) 
+            GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
 
@@ -744,17 +733,56 @@ def generar_grafico_pregunta5():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
+def generar_grafico_pregunta6():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT respuesta_TM_id, COUNT(*) 
+            FROM botapp_respusuariotamizaje
+            WHERE respuesta_TM_id IN (25, 26, 27)
+            GROUP BY respuesta_TM_id;"""
+        )
+        resultados = cursor.fetchall()
+
+    labels = []
+    sizes = []
+    counts = []
+
+    for resultado in resultados:
+        id_opc_respuesta, cantidad = resultado
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
+        sizes.append(cantidad)
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
+
+    # Configurar el gráfico circular
+    fig, ax = plt.subplots(figsize=(8, 8))
+    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
+    
+    # Configurar las etiquetas del gráfico
+    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    # Mostrar el gráfico
+    plt.title('¿Tienes un familiar directo con cáncer de mama?\n(hermana, mama, tía, abuela)', pad=20)
+
+    # Guardar la imagen en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches='tight')
+    buffer.seek(0)
+    plt.close()
+
+    # Convertir la imagen a base64
+    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return imagen_base64
+
+
 def generar_grafico_mamografia_si_por_edad():
 
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad 
-            FROM botApp_usuariorespuesta ur JOIN botApp_usuario us ON ur.RutHash = us.RutHash 
-            JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1)
-            GROUP BY us.edad ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad 
+            FROM botapp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            WHERE respuesta_TM_id IN (1)
+            GROUP BY us.edad ORDER BY edad ASC;""" 
         )
         resultados = cursor.fetchall()
 
@@ -795,13 +823,10 @@ def generar_grafico_mamografia_no_por_edad():
 
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad 
-            FROM botApp_usuariorespuesta ur JOIN botApp_usuario us ON ur.RutHash = us.RutHash
-            JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (2)
-            GROUP BY edad ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad 
+            FROM botapp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat
+            WHERE respuesta_TM_id IN (2)
+            GROUP BY edad ORDER BY edad ASC;"""
         )
         resultados = cursor.fetchall()
 
@@ -837,14 +862,12 @@ def generar_grafico_mamografia_no_por_edad():
 def mamografia_por_edad_si_no():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad, ur.id_opc_respuesta_id
-            FROM botApp_usuariorespuesta ur 
-            JOIN botApp_usuario us ON ur.RutHash = us.RutHash JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1,2) 
-            GROUP BY edad, ur.id_opc_respuesta_id 
-            ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botapp_respusuariotamizaje ur 
+            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            WHERE respuesta_TM_id IN (1,2) 
+            GROUP BY edad, ur.respuesta_TM_id 
+            ORDER BY edad ASC;"""         
         )
         resultados = cursor.fetchall()
 
@@ -906,12 +929,9 @@ def generar_grafico_tiempo_trascurrido():
 
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT tiempo_transc_ult_mamografia, COUNT(*) 
-            FROM botApp_ultima_mamografia_anio u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) 
-            GROUP BY tiempo_transc_ult_mamografia ORDER BY tiempo_transc_ult_mamografia ASC;
-            """
+            """SELECT tiempo_transc_ult_mamografia, COUNT(*) 
+            FROM botApp_ultima_mamografia_anio u 
+            GROUP BY tiempo_transc_ult_mamografia ORDER BY tiempo_transc_ult_mamografia ASC;"""
         )
         resultados = cursor.fetchall()
 
@@ -951,17 +971,13 @@ def generar_grafico_tiempo_trascurrido():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
-
 def generar_grafico_por_rango_edad():
 
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT edad, COUNT(*) 
-            FROM botApp_usuario  u JOIN botApp_respusuariofactorriesgonomod r ON u.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) 
-            GROUP BY edad ORDER BY edad;
-            """
+            """SELECT edad, COUNT(*) 
+            FROM botApp_usuario u
+            GROUP BY edad ORDER BY edad;"""  
         )
         resultados = cursor.fetchall()
 
@@ -1006,14 +1022,12 @@ def generar_grafico_por_rango_edad():
 def mamografia_por_edad_si_no_rango_edad():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad, ur.id_opc_respuesta_id
-            FROM botApp_usuariorespuesta ur 
-            JOIN botApp_usuario us ON ur.RutHash = us.RutHash  JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1,2)
-            GROUP BY edad, ur.id_opc_respuesta_id 
-            ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botapp_respusuariotamizaje ur 
+            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat  
+            WHERE respuesta_TM_id IN (1,2)
+            GROUP BY edad, ur.respuesta_TM_id 
+            ORDER BY edad ASC;"""
         )
         resultados = cursor.fetchall()
 
@@ -1078,14 +1092,12 @@ def mamografia_por_edad_si_no_rango_edad():
 def mamografia_por_edad_si_no_rango_edad_agrupado():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad, ur.id_opc_respuesta_id
-            FROM botApp_usuariorespuesta ur 
-            JOIN botApp_usuario us ON ur.RutHash = us.RutHash JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1,2)
-            GROUP BY edad, ur.id_opc_respuesta_id 
-            ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botapp_respusuariotamizaje ur 
+            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            WHERE respuesta_TM_id IN (1,2)
+            GROUP BY edad, ur.respuesta_TM_id 
+            ORDER BY edad ASC;"""  
         )
         resultados = cursor.fetchall()
 
@@ -1142,14 +1154,11 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
 def grafico_prev_salud_por_rango_edad():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad, ds.respuesta_DS_id
-            FROM botApp_usuario us JOIN  botApp_respdetersalud ds ON us.RutHash = ds.RutHash
-            JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND ds.respuesta_DS_id IN(4,5,6)
-            GROUP BY edad, respuesta_DS_id 
-            ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botApp_usuario us JOIN  botapp_respusuariotamizaje ur ON us.id_manychat = ur.id_manychat
+            WHERE ur.respuesta_TM_id IN(19,20,21)
+            GROUP BY edad, respuesta_TM_id 
+            ORDER BY edad ASC;"""  
         )
         resultados = cursor.fetchall()
 
@@ -1168,11 +1177,11 @@ def grafico_prev_salud_por_rango_edad():
     for edad, cantidad, respuesta in resultados:
         index = 0 if edad < edad_min else (1 if edad <= edad_max else 2)
         
-        if respuesta == 4:
+        if respuesta == 19:
             cantidades_fonasa[index] += cantidad
-        elif respuesta == 5:
+        elif respuesta == 20:
             cantidades_isapre[index] += cantidad
-        elif respuesta == 6:
+        elif respuesta == 21:
             cantidades_otro[index] += cantidad
 
     # Crear el gráfico
@@ -1210,6 +1219,100 @@ def grafico_prev_salud_por_rango_edad():
     imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return imagen_base64
 
+def generar_grafico_mamo_si_por_familiar_directo():
+    
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT r.respuesta_TM_id, COUNT(DISTINCT r.id_manychat) AS cantidad_respuestas
+            FROM botapp_respusuariotamizaje r
+            WHERE r.respuesta_TM_id IN (25, 26, 27)  
+            AND r.id_manychat IN (
+            SELECT DISTINCT r2.id_manychat
+            FROM botapp_respusuariotamizaje r2
+            WHERE r2.respuesta_TM_id = 1  
+            )   
+            GROUP BY r.respuesta_TM_id;"""
+        )
+        resultados = cursor.fetchall()
+
+    labels = []
+    sizes = []
+    counts = []
+
+    for resultado in resultados:
+        id_opc_respuesta, cantidad = resultado
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
+        sizes.append(cantidad)
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
+
+    # Configurar el gráfico circular
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
+    
+    # Configurar las etiquetas del gráfico
+    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    # Mostrar el gráfico
+    plt.title('Cantidad de usuarias que si se han realizado mamografías y tiene antecedentes familiares', pad=20)
+
+    # Guardar la imagen en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches='tight')
+    buffer.seek(0)
+    plt.close()
+
+    # Convertir la imagen a base64
+    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return imagen_base64
+
+def generar_grafico_mamo_no_por_familiar_directo():
+    
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT r.respuesta_TM_id, COUNT(DISTINCT r.id_manychat) AS cantidad_respuestas
+            FROM botapp_respusuariotamizaje r
+            WHERE r.respuesta_TM_id IN (25, 26, 27)  
+            AND r.id_manychat IN (
+                SELECT DISTINCT r2.id_manychat
+                FROM botapp_respusuariotamizaje r2
+                WHERE r2.respuesta_TM_id = 2 
+                )
+            GROUP BY r.respuesta_TM_id;"""
+        )
+        resultados = cursor.fetchall()
+
+    labels = []
+    sizes = []
+    counts = []
+
+    for resultado in resultados:
+        id_opc_respuesta, cantidad = resultado
+        opcion_respuesta = OpcTamizaje.objects.get(id=id_opc_respuesta)
+        labels.append(opcion_respuesta.opc_respuesta_TM)
+        sizes.append(cantidad)
+        counts.append(f"{opcion_respuesta.opc_respuesta_TM} - {cantidad}")
+
+    # Configurar el gráfico circular
+    fig, ax = plt.subplots()
+    wedges, texts, autotexts = ax.pie(sizes, labels=None, autopct='%1.1f%%', startangle=90, colors=['#79addc', '#EFB0C9', '#A5F8CE'])
+    
+    # Configurar las etiquetas del gráfico
+    ax.legend(wedges, counts, title="Respuestas", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    # Mostrar el gráfico
+    plt.title('Cantidad de usuarias que no se han realizado mamografías y tiene antecedentes familiares', pad=20)
+
+    # Guardar la imagen en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches='tight')
+    buffer.seek(0)
+    plt.close()
+
+    # Convertir la imagen a base64
+    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return imagen_base64
+
 @login_required
 def reportes(request):
     data = {
@@ -1221,6 +1324,7 @@ def reportes(request):
         "imagen_base64_pregunta3": generar_grafico_pregunta3(),
         "imagen_base64_pregunta4": generar_grafico_pregunta4(),
         "imagen_base64_pregunta5": generar_grafico_pregunta5(),
+        "imagen_base64_pregunta6": generar_grafico_pregunta6(),
         "imagen_base64_referencias": generar_grafico_referencias(), 
         "imagen_base64_anios_nacimiento": generar_grafico_anio_nacimiento(),
         "imagen_base64_mamografia_si_por_edad":generar_grafico_mamografia_si_por_edad(),
@@ -1231,7 +1335,9 @@ def reportes(request):
         "imagen_base64_mamografia_si_no_rango_edad": mamografia_por_edad_si_no_rango_edad(),
         "imagen_base64_mamografia_si_no_rango_edad_agrupadas": mamografia_por_edad_si_no_rango_edad_agrupado(),
         "imagen_base64_grafico_prev_salud_por_rango_edad":grafico_prev_salud_por_rango_edad(),
-        }
+        "imagen_base64_mamo_si_por_familiar_directo":generar_grafico_mamo_si_por_familiar_directo(),
+        "imagen_base64_mamo_no_por_familiar_directo":generar_grafico_mamo_no_por_familiar_directo(),
+        } 
     return render(request, "reportes.html", data)
 
 
