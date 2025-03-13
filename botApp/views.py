@@ -1444,7 +1444,7 @@ def obtener_usuario(request, usuario_id):
     except Usuario.DoesNotExist:
         return JsonResponse({"error": "Usuario no encontrado"}, status=404)
 
-"""
+
 @csrf_exempt
 def consultar_estado_pregunta(request):
     if request.method != "POST":
@@ -1454,16 +1454,11 @@ def consultar_estado_pregunta(request):
         data = JSONParser().parse(request)
     except Exception:
         return JsonResponse({"error": "Error al leer el JSON, asegúrate de que el formato es correcto."}, status=400)
-
-    # Validar que ManyChat envió el Rut
-    if "Rut" not in data:
-        return JsonResponse({"error": "El campo 'Rut' es obligatorio en la petición."}, status=400)
-
-    # Encriptar el Rut para compararlo con RutHash
-    rut_encriptado = generar_hash(data["Rut"])
+    
+    id_manychat = data["id_manychat"]
 
     # Verificar si el usuario existe en la BD
-    usuario_model = Usuario.objects.filter(RutHash=rut_encriptado).first()
+    usuario_model = Usuario.objects.filter(id_manychat=id_manychat).first()
     
     if not usuario_model:
         return JsonResponse({"respondido": "false"})
@@ -1473,14 +1468,14 @@ def consultar_estado_pregunta(request):
 
     # Verificar el tipo de pregunta
     if data["tipo_pregunta"] == "TM":
-        pregunta_model = Pregunta.objects.filter(pregunta=data["nombre_pregunta"]).first()
+        pregunta_model = PregTamizaje.objects.filter(pregunta=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
-            opcion_respuesta_model = list(PreguntaOpcionRespuesta.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
-            respuesta = list(UsuarioRespuesta.objects.filter(RutHash=rut_encriptado, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
+            opcion_respuesta_model = list(OpcTamizaje.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
+            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
             respondido = len(respuesta) > 0
 
-    elif data["tipo_pregunta"] == "DS":
+    """elif data["tipo_pregunta"] == "DS":
         pregunta_model = PregDeterSalud.objects.filter(pregunta_DS=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
@@ -1498,29 +1493,27 @@ def consultar_estado_pregunta(request):
 
         # Verificación específica para peso y altura
 
-        """
-"""
             if "peso" in data["nombre_pregunta"].lower() or "altura" in data["nombre_pregunta"].lower():
             calculo_model = CalculoFRM.objects.filter(RutHash=rut_encriptado).first()
             if calculo_model:
                 # Verificar si ambos valores (peso y altura) están presentes y son mayores que 0
                 if calculo_model.peso_mod > 0 and calculo_model.altura_mod > 0:
-                    respondido = True"""
-"""
+                    respondido = True
+
     elif data["tipo_pregunta"] == "FRNM":
         pregunta_model = PregFactorRiesgoNoMod.objects.filter(pregunta_FRNM=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcFactorRiesgoNoMod.objects.filter(id_pregunta_FRNM=id_pregunta).values_list("id", flat=True))
             respuesta = list(RespUsuarioFactorRiesgoNoMod.objects.filter(RutHash=rut_encriptado, respuesta_FRNM__in=opcion_respuesta_model).values_list("id", flat=True))
-            respondido = len(respuesta) > 0
+            respondido = len(respuesta) > 0 """
 
     # Devolver la respuesta
     return JsonResponse({
         "respondido": "true" if respondido else "false"
     })
 
-@csrf_exempt
+"""@csrf_exempt
 def retorna_genero(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido."}, status=405)
@@ -1547,7 +1540,7 @@ def retorna_genero(request):
         #opcion = OpcFactorRiesgoNoMod.objects.filter(id=respuesta.respuesta_FRNM)
         return JsonResponse({"genero": respuesta.respuesta_FRNM.id})
     else:
-        return JsonResponse({"error": "usuario no existe"})
+        return JsonResponse({"error": "usuario no existe"})"""
     
 @csrf_exempt
 def verificar_usuario(request):
@@ -1559,16 +1552,11 @@ def verificar_usuario(request):
     except Exception as e:
         return JsonResponse({"error": f"Error al leer el JSON: {str(e)}"}, status=400)
 
-    # Validar que el campo 'Rut' esté presente
-    if "Rut" not in data:
-        return JsonResponse({"error": "El campo 'Rut' es obligatorio en la petición."}, status=400)
-
-    # Encriptar el Rut para compararlo con RutHash
-    rut_encriptado = generar_hash(data["Rut"])
-
+    id_manychat = data["id_manychat"]
+    
     try:
         # Verificar si el usuario existe en la BD
-        usuario_model = Usuario.objects.filter(RutHash=rut_encriptado).first()
+        usuario_model = Usuario.objects.filter(id_manychat=id_manychat).first()
 
         if usuario_model:
             return JsonResponse({"existe": "true"})
@@ -1579,4 +1567,3 @@ def verificar_usuario(request):
         # Manejo de errores inesperados
         return JsonResponse({"error": f"Error interno del servidor: {str(e)}"}, status=500)
 
-"""
