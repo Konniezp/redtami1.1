@@ -20,16 +20,10 @@
             <ul>
                 <li><a href="{% url 'datosPerfil' %}">Datos Del Perfil</a></li>
                 <li><a href="{% url 'datosPreguntas' %}">Datos de Preguntas</a></li>
-                <li><a href="{% url 'datosTextoPreguntas' %}">Preguntas a Especialistas</a></li>
                 <li><a href="{% url 'datosListadoOrdenado'%}">Listado Ordenable</a></li>
             </ul>
         </nav>
         <nav>
-            <ul>
-              <li><a href="{% url 'opcVisualFRM' %}">Riesgos modificables</a></li>
-              <li><a href="{% url 'opcVisualFRNM' %}">Riesgos no modificables</a></li>
-              <li><a href="{% url 'opcVisualDS' %}">Determinantes salud</a></li>
-            </ul> 
           </nav>
         <form action="{% url 'descargar_excel' %}" method="post">
             {% csrf_token %}

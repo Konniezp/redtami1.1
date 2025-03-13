@@ -62,6 +62,11 @@ def login(request):
 
     return render(request, "registration/login.html")
 
+@login_required
+def logout(request):
+    auth.logout(request)
+    return render(request, "registration/login.html")
+
 # --------------------- Respuestas de Usuario --------------------- #
 
 #Home
@@ -93,9 +98,9 @@ def datosPerfil(request):
 @login_required
 def datosPreguntas(request):
     Datos = RespUsuarioTamizaje.objects.select_related(
-        "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
-        "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
-        "fecha_respuesta", "RutHash").order_by("-fecha_respuesta")
+        "respuesta_TM", "respuesta_TM__id_pregunta").values("id",
+        "respuesta_TM__id_pregunta__pregunta", "respuesta_TM__opc_respuesta_TM",
+        "fecha_respuesta").order_by("-fecha_respuesta")
     data = {
         "Datos": Datos,
     }
