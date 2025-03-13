@@ -16,11 +16,9 @@
     </div>
     <nav>
       <ul>
-        <li><a href="{% url 'formulario' %}">Formulario Web</a></li>
         <li><a href="{% url 'respuestasHome' %}">Respuestas del Usuario</a></li>
         <li><a href="{% url 'reportes' %}">Reportes</a></li>
 		    <li><a href="{% url 'listarPreguntas' %}">Listado Preguntas</a></li>
-		    <li><a href="{% url 'crearPregunta' %}">Crear Preguntas</a></li>
         {% if user.is_staff %}
         <li><a href="{% url 'apiHome' %}">Api's</a></li>
         <li><a href="{% url 'mensajesHome' %}">Listado Mensajes</a></li>
@@ -32,7 +30,6 @@
       <button type="submit">Cerrar Sesión</button>
     </form>
   </header>
-
   <!-- Footer -->
   <footer id="footer">
     <p class="copyright">&copy; Untitled.</p>

@@ -22,10 +22,8 @@ node_modules/
 venv/
 .env
 .envpractica
-
 # BD
 db-bryan-becerra.sql
 
 #Reportes
 reporte_respuestas.xlsx
-
