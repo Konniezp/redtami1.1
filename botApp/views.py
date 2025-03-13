@@ -1612,7 +1612,7 @@ def consultar_estado_pregunta(request):
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcFactorRiesgoNoMod.objects.filter(id_pregunta_FRNM=id_pregunta).values_list("id", flat=True))
             respuesta = list(RespUsuarioFactorRiesgoNoMod.objects.filter(RutHash=rut_encriptado, respuesta_FRNM__in=opcion_respuesta_model).values_list("id", flat=True))
-            respondido = len(respuesta) > 0 """
+            respondido = len(respuesta) > 0 """ 
 
     # Devolver la respuesta
     return JsonResponse({
