@@ -62,6 +62,11 @@ def login(request):
 
     return render(request, "registration/login.html")
 
+@login_required
+def logout(request):
+    auth.logout(request)
+
+
 # --------------------- Respuestas de Usuario --------------------- #
 
 #Home
@@ -93,9 +98,9 @@ def datosPerfil(request):
 @login_required
 def datosPreguntas(request):
     Datos = RespUsuarioTamizaje.objects.select_related(
-        "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
-        "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
-        "fecha_respuesta", "RutHash").order_by("-fecha_respuesta")
+        "respuesta_TM", "respuesta_TM__id_pregunta").values("id",
+        "respuesta_TM__id_pregunta__pregunta", "respuesta_TM__opc_respuesta_TM",
+        "fecha_respuesta").order_by("-fecha_respuesta")
     data = {
         "Datos": Datos,
     }
@@ -105,14 +110,15 @@ def datosPreguntas(request):
 def datosListadoOrdenado(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT us.id, us.Rut, Whatsapp, Email, edad,  
-            COALESCE(opc_respuesta_FRNM, 'No aplica') AS Antecedentes_familiares,
-            COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
-            FROM botApp_usuario us LEFT JOIN botApp_respusuariofactorriesgonomod rnm ON us.RutHash = rnm.RutHash
-            LEFT JOIN botApp_ultima_mamografia_anio ult ON us.RutHash = ult.RutHash  
-            LEFT JOIN botApp_opcfactorriesgonomod opc ON  opc.id = rnm.respuesta_FRNM_id
-            WHERE opc.id IN(4,5,6) OR rnm.respuesta_FRNM_id IS NULL
-            ORDER BY ult.tiempo_transc_ult_mamografia DESC;
+        SELECT 
+        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
+        FROM botApp_opctamizaje opc 
+        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
+        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
+        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
+        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
         """)
         columns = [col[0] for col in cursor.description]
         datos = cursor.fetchall()
@@ -120,29 +126,17 @@ def datosListadoOrdenado(request):
     #Descifra datos 
     datos_descifrados=[]
     for row in datos:
-        id, Rut, Whatsapp, Email, edad, antecedentes, ultima_mamografia = row
+        id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
     
         #Intenta descifrar cada campo encriptado
-        try:
-            Rut_descifrado = decrypt_data(Rut) if Rut else "No disponible"
-        except:
-            Rut_descifrado = "Error al descifrar Rut"
-        
         try:
             Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
         except:
             Whatsapp_descifrado = "Error al descifrar Whatsapp"
-
-        try:
-            Email_descifrado = decrypt_data(Email) if Email else "No disponible"
-        except:
-            Email_descifrado = "Error al descifrar Email"
         
         datos_descifrados.append({
-            "id": id,
-            "Rut": Rut_descifrado,
+            "id": id_manychat,
             "Whatsapp": Whatsapp_descifrado,
-            "Email": Email_descifrado,
             "edad": edad,
             "Antecedentes_familiares": antecedentes,
             "Ult_mamografia": ultima_mamografia,
@@ -181,25 +175,27 @@ def crear_excel_desde_db():
     ws_respuestas_usuario.title = 'Respuestas Usuario'
 
     preguntas = PregTamizaje.objects.all()
-    lista_preguntas = [ "RutHash"] + [pregunta.pregunta for pregunta in preguntas]
+    lista_preguntas = [ "id_manychat"] + [pregunta.pregunta for pregunta in preguntas]
     ws_respuestas_usuario.append(lista_preguntas)
 
-    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related('id_opc_respuesta', 'id_opc_respuesta__id_pregunta').values(
-         'RutHash', 'id_opc_respuesta__id_pregunta__pregunta', 'id_opc_respuesta__OPC_Respuesta'
+    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related('respuesta_TM', 'respuesta_TM__id_pregunta').values(
+        'id_manychat', 
+        'respuesta_TM__id_pregunta__pregunta', 
+        'respuesta_TM__opc_respuesta_TM'
     )
 
     dict_respuestas = {}
 
     for respuesta in usuarios_respuestas:
-        rut = respuesta[ 'RutHash']
-        pregunta = respuesta['id_opc_respuesta__id_pregunta__pregunta']
-        respuesta_usuario = respuesta['id_opc_respuesta__OPC_Respuesta']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
+        id_manychat = respuesta[ 'id_manychat']
+        pregunta = respuesta['respuesta_TM__id_pregunta__pregunta']
+        respuesta_usuario = respuesta['respuesta_TM__opc_respuesta_TM']
+        if id_manychat not in dict_respuestas:
+            dict_respuestas[id_manychat] = {}
+        dict_respuestas[id_manychat][pregunta] = respuesta_usuario
 
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
+    for id_manychat, respuestas_usuario in dict_respuestas.items():
+        fila = [id_manychat]
         for pregunta in preguntas:
             respuesta = respuestas_usuario.get(pregunta.pregunta, '')
             fila.append(respuesta)
@@ -241,15 +237,15 @@ def descargar_excel(request):
 def crear_excel_listado_ordenable(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT us.id, us.Rut, Whatsapp, Email, edad,                        
-            COALESCE(opc_respuesta_FRNM, 'No aplica') AS Antecedentes_familiares,
-            COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
-            FROM botApp_usuario us 
-            JOIN botApp_respusuariofactorriesgonomod rnm ON us.RutHash = rnm.RutHash
-            LEFT JOIN botApp_ultima_mamografia_anio ult ON us.RutHash = ult.RutHash  
-            LEFT JOIN botApp_opcfactorriesgonomod opc ON opc.id = rnm.respuesta_FRNM_id
-            WHERE opc.id IN (4,5,6) OR rnm.respuesta_FRNM_id IS NULL
-            ORDER BY ult.tiempo_transc_ult_mamografia DESC;
+        SELECT 
+        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
+        FROM botApp_opctamizaje opc 
+        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
+        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
+        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
+        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
         """)
         columns = [col[0] for col in cursor.description]
         data = cursor.fetchall()
@@ -265,26 +261,16 @@ def crear_excel_listado_ordenable(request):
     # Agregar los datos fila por fila
     datos_descifrados = []
     for row in data:
-        id, Rut, Whatsapp, Email, edad, antecedentes, ultima_mamografia = row
+        id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
 
         # Intenta descifrar los datos
-        try:
-            Rut_descifrado = decrypt_data(Rut) if Rut else "No disponible"
-        except:
-            Rut_descifrado = "Error al descifrar Rut"
-
         try:
             Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
         except:
             Whatsapp_descifrado = "Error al descifrar Whatsapp"
 
-        try:
-            Email_descifrado = decrypt_data(Email) if Email else "No disponible"
-        except:
-            Email_descifrado = "Error al descifrar Email"
-
         # Agregar los datos descifrados a la lista y a la hoja de Excel
-        fila_descifrada = (id, Rut_descifrado, Whatsapp_descifrado, Email_descifrado, edad, antecedentes, ultima_mamografia)
+        fila_descifrada = (id_manychat, Whatsapp_descifrado, edad, antecedentes, ultima_mamografia)
         datos_descifrados.append(fila_descifrada)
         ws.append(fila_descifrada) 
 
@@ -306,22 +292,22 @@ def crear_excel_datos_preguntas(resquest):
     ws_datos_preg.title = "Preguntas generales"
 
     preguntas = PregTamizaje.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
+    lista_preguntas = ['id_manychat', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
     ws_datos_preg.append(lista_preguntas)
 
     usuarios_respuestas = RespUsuarioTamizaje.objects.select_related(
-        "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
-        "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
-        "fecha_respuesta",  "RutHash").order_by("-fecha_respuesta")
+        "respuesta_TM", "respuesta_TM__id_pregunta").values("id_manychat",
+        "respuesta_TM__id_pregunta__pregunta", "respuesta_TM__opc_respuesta_TM",
+        "fecha_respuesta").order_by("-fecha_respuesta")
     
 
     for respuesta in usuarios_respuestas:
 
-        pregunta = respuesta['id_opc_respuesta__id_pregunta__pregunta']
-        respuesta_usuario = respuesta['id_opc_respuesta__OPC_Respuesta']
+        pregunta = respuesta['respuesta_TM__id_pregunta__pregunta']
+        respuesta_usuario = respuesta['respuesta_TM__opc_respuesta_TM']
         fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
         fila = [
-            respuesta['RutHash'],
+            respuesta['id_manychat'],
             pregunta,  
             respuesta_usuario, 
             fecha_respuesta,  
@@ -1564,7 +1550,7 @@ def obtener_usuario(request, usuario_id):
     except Usuario.DoesNotExist:
         return JsonResponse({"error": "Usuario no encontrado"}, status=404)
 
-"""
+
 @csrf_exempt
 def consultar_estado_pregunta(request):
     if request.method != "POST":
@@ -1574,16 +1560,11 @@ def consultar_estado_pregunta(request):
         data = JSONParser().parse(request)
     except Exception:
         return JsonResponse({"error": "Error al leer el JSON, asegúrate de que el formato es correcto."}, status=400)
-
-    # Validar que ManyChat envió el Rut
-    if "Rut" not in data:
-        return JsonResponse({"error": "El campo 'Rut' es obligatorio en la petición."}, status=400)
-
-    # Encriptar el Rut para compararlo con RutHash
-    rut_encriptado = generar_hash(data["Rut"])
+    
+    id_manychat = data["id_manychat"]
 
     # Verificar si el usuario existe en la BD
-    usuario_model = Usuario.objects.filter(RutHash=rut_encriptado).first()
+    usuario_model = Usuario.objects.filter(id_manychat=id_manychat).first()
     
     if not usuario_model:
         return JsonResponse({"respondido": "false"})
@@ -1593,14 +1574,14 @@ def consultar_estado_pregunta(request):
 
     # Verificar el tipo de pregunta
     if data["tipo_pregunta"] == "TM":
-        pregunta_model = Pregunta.objects.filter(pregunta=data["nombre_pregunta"]).first()
+        pregunta_model = PregTamizaje.objects.filter(pregunta=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
-            opcion_respuesta_model = list(PreguntaOpcionRespuesta.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
-            respuesta = list(UsuarioRespuesta.objects.filter(RutHash=rut_encriptado, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
+            opcion_respuesta_model = list(OpcTamizaje.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
+            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
             respondido = len(respuesta) > 0
 
-    elif data["tipo_pregunta"] == "DS":
+    """elif data["tipo_pregunta"] == "DS":
         pregunta_model = PregDeterSalud.objects.filter(pregunta_DS=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
@@ -1618,29 +1599,27 @@ def consultar_estado_pregunta(request):
 
         # Verificación específica para peso y altura
 
-        """
-"""
             if "peso" in data["nombre_pregunta"].lower() or "altura" in data["nombre_pregunta"].lower():
             calculo_model = CalculoFRM.objects.filter(RutHash=rut_encriptado).first()
             if calculo_model:
                 # Verificar si ambos valores (peso y altura) están presentes y son mayores que 0
                 if calculo_model.peso_mod > 0 and calculo_model.altura_mod > 0:
-                    respondido = True"""
-"""
+                    respondido = True
+
     elif data["tipo_pregunta"] == "FRNM":
         pregunta_model = PregFactorRiesgoNoMod.objects.filter(pregunta_FRNM=data["nombre_pregunta"]).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcFactorRiesgoNoMod.objects.filter(id_pregunta_FRNM=id_pregunta).values_list("id", flat=True))
             respuesta = list(RespUsuarioFactorRiesgoNoMod.objects.filter(RutHash=rut_encriptado, respuesta_FRNM__in=opcion_respuesta_model).values_list("id", flat=True))
-            respondido = len(respuesta) > 0
+            respondido = len(respuesta) > 0 """ 
 
     # Devolver la respuesta
     return JsonResponse({
         "respondido": "true" if respondido else "false"
     })
 
-@csrf_exempt
+"""@csrf_exempt
 def retorna_genero(request):
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido."}, status=405)
@@ -1667,7 +1646,7 @@ def retorna_genero(request):
         #opcion = OpcFactorRiesgoNoMod.objects.filter(id=respuesta.respuesta_FRNM)
         return JsonResponse({"genero": respuesta.respuesta_FRNM.id})
     else:
-        return JsonResponse({"error": "usuario no existe"})
+        return JsonResponse({"error": "usuario no existe"})"""
     
 @csrf_exempt
 def verificar_usuario(request):
@@ -1679,16 +1658,11 @@ def verificar_usuario(request):
     except Exception as e:
         return JsonResponse({"error": f"Error al leer el JSON: {str(e)}"}, status=400)
 
-    # Validar que el campo 'Rut' esté presente
-    if "Rut" not in data:
-        return JsonResponse({"error": "El campo 'Rut' es obligatorio en la petición."}, status=400)
-
-    # Encriptar el Rut para compararlo con RutHash
-    rut_encriptado = generar_hash(data["Rut"])
-
+    id_manychat = data["id_manychat"]
+    
     try:
         # Verificar si el usuario existe en la BD
-        usuario_model = Usuario.objects.filter(RutHash=rut_encriptado).first()
+        usuario_model = Usuario.objects.filter(id_manychat=id_manychat).first()
 
         if usuario_model:
             return JsonResponse({"existe": "true"})
@@ -1699,4 +1673,3 @@ def verificar_usuario(request):
         # Manejo de errores inesperados
         return JsonResponse({"error": f"Error interno del servidor: {str(e)}"}, status=500)
 
-"""

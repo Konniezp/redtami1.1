@@ -32,33 +32,8 @@
 
   <div class="button-container">
     <a class="button" href="{% url 'home' %}">Volver</a>
-    <a class="button" id="buttonCreate" href="{% url 'crearPregunta' %}"
-      >Crear Pregunta</a
-    >
   </div>
 </div>
-
-<script>
-  function eliminarPregunta(idPregunta) {
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: "No podrás revertir esto",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Sí, eliminarlo",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Redirige a la URL de eliminación
-        window.location.href = "{% url 'eliminarPregunta' 0 %}".replace(
-          "0",
-          idPregunta
-        );
-      }
-    });
-  }
-</script>
 
 <style>
   #buttonCreate {
