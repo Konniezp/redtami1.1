@@ -65,7 +65,7 @@ def login(request):
 @login_required
 def logout(request):
     auth.logout(request)
-    return render(request, "registration/login.html")
+
 
 # --------------------- Respuestas de Usuario --------------------- #
 
@@ -110,14 +110,15 @@ def datosPreguntas(request):
 def datosListadoOrdenado(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT us.id, us.Rut, Whatsapp, Email, edad,  
-            COALESCE(opc_respuesta_FRNM, 'No aplica') AS Antecedentes_familiares,
-            COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
-            FROM botApp_usuario us LEFT JOIN botApp_respusuariofactorriesgonomod rnm ON us.RutHash = rnm.RutHash
-            LEFT JOIN botApp_ultima_mamografia_anio ult ON us.RutHash = ult.RutHash  
-            LEFT JOIN botApp_opcfactorriesgonomod opc ON  opc.id = rnm.respuesta_FRNM_id
-            WHERE opc.id IN(4,5,6) OR rnm.respuesta_FRNM_id IS NULL
-            ORDER BY ult.tiempo_transc_ult_mamografia DESC;
+        SELECT 
+        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
+        FROM botApp_opctamizaje opc 
+        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
+        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
+        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
+        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
         """)
         columns = [col[0] for col in cursor.description]
         datos = cursor.fetchall()
@@ -125,29 +126,17 @@ def datosListadoOrdenado(request):
     #Descifra datos 
     datos_descifrados=[]
     for row in datos:
-        id, Rut, Whatsapp, Email, edad, antecedentes, ultima_mamografia = row
+        id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
     
         #Intenta descifrar cada campo encriptado
-        try:
-            Rut_descifrado = decrypt_data(Rut) if Rut else "No disponible"
-        except:
-            Rut_descifrado = "Error al descifrar Rut"
-        
         try:
             Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
         except:
             Whatsapp_descifrado = "Error al descifrar Whatsapp"
-
-        try:
-            Email_descifrado = decrypt_data(Email) if Email else "No disponible"
-        except:
-            Email_descifrado = "Error al descifrar Email"
         
         datos_descifrados.append({
-            "id": id,
-            "Rut": Rut_descifrado,
+            "id": id_manychat,
             "Whatsapp": Whatsapp_descifrado,
-            "Email": Email_descifrado,
             "edad": edad,
             "Antecedentes_familiares": antecedentes,
             "Ult_mamografia": ultima_mamografia,
@@ -186,25 +175,27 @@ def crear_excel_desde_db():
     ws_respuestas_usuario.title = 'Respuestas Usuario'
 
     preguntas = PregTamizaje.objects.all()
-    lista_preguntas = [ "RutHash"] + [pregunta.pregunta for pregunta in preguntas]
+    lista_preguntas = [ "id_manychat"] + [pregunta.pregunta for pregunta in preguntas]
     ws_respuestas_usuario.append(lista_preguntas)
 
-    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related('id_opc_respuesta', 'id_opc_respuesta__id_pregunta').values(
-         'RutHash', 'id_opc_respuesta__id_pregunta__pregunta', 'id_opc_respuesta__OPC_Respuesta'
+    usuarios_respuestas = RespUsuarioTamizaje.objects.select_related('respuesta_TM', 'respuesta_TM__id_pregunta').values(
+        'id_manychat', 
+        'respuesta_TM__id_pregunta__pregunta', 
+        'respuesta_TM__opc_respuesta_TM'
     )
 
     dict_respuestas = {}
 
     for respuesta in usuarios_respuestas:
-        rut = respuesta[ 'RutHash']
-        pregunta = respuesta['id_opc_respuesta__id_pregunta__pregunta']
-        respuesta_usuario = respuesta['id_opc_respuesta__OPC_Respuesta']
-        if rut not in dict_respuestas:
-            dict_respuestas[rut] = {}
-        dict_respuestas[rut][pregunta] = respuesta_usuario
+        id_manychat = respuesta[ 'id_manychat']
+        pregunta = respuesta['respuesta_TM__id_pregunta__pregunta']
+        respuesta_usuario = respuesta['respuesta_TM__opc_respuesta_TM']
+        if id_manychat not in dict_respuestas:
+            dict_respuestas[id_manychat] = {}
+        dict_respuestas[id_manychat][pregunta] = respuesta_usuario
 
-    for rut, respuestas_usuario in dict_respuestas.items():
-        fila = [rut]
+    for id_manychat, respuestas_usuario in dict_respuestas.items():
+        fila = [id_manychat]
         for pregunta in preguntas:
             respuesta = respuestas_usuario.get(pregunta.pregunta, '')
             fila.append(respuesta)
@@ -246,15 +237,15 @@ def descargar_excel(request):
 def crear_excel_listado_ordenable(request):
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT us.id, us.Rut, Whatsapp, Email, edad,                        
-            COALESCE(opc_respuesta_FRNM, 'No aplica') AS Antecedentes_familiares,
-            COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
-            FROM botApp_usuario us 
-            JOIN botApp_respusuariofactorriesgonomod rnm ON us.RutHash = rnm.RutHash
-            LEFT JOIN botApp_ultima_mamografia_anio ult ON us.RutHash = ult.RutHash  
-            LEFT JOIN botApp_opcfactorriesgonomod opc ON opc.id = rnm.respuesta_FRNM_id
-            WHERE opc.id IN (4,5,6) OR rnm.respuesta_FRNM_id IS NULL
-            ORDER BY ult.tiempo_transc_ult_mamografia DESC;
+        SELECT 
+        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
+        FROM botApp_opctamizaje opc 
+        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
+        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
+        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
+        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
         """)
         columns = [col[0] for col in cursor.description]
         data = cursor.fetchall()
@@ -270,26 +261,16 @@ def crear_excel_listado_ordenable(request):
     # Agregar los datos fila por fila
     datos_descifrados = []
     for row in data:
-        id, Rut, Whatsapp, Email, edad, antecedentes, ultima_mamografia = row
+        id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
 
         # Intenta descifrar los datos
-        try:
-            Rut_descifrado = decrypt_data(Rut) if Rut else "No disponible"
-        except:
-            Rut_descifrado = "Error al descifrar Rut"
-
         try:
             Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
         except:
             Whatsapp_descifrado = "Error al descifrar Whatsapp"
 
-        try:
-            Email_descifrado = decrypt_data(Email) if Email else "No disponible"
-        except:
-            Email_descifrado = "Error al descifrar Email"
-
         # Agregar los datos descifrados a la lista y a la hoja de Excel
-        fila_descifrada = (id, Rut_descifrado, Whatsapp_descifrado, Email_descifrado, edad, antecedentes, ultima_mamografia)
+        fila_descifrada = (id_manychat, Whatsapp_descifrado, edad, antecedentes, ultima_mamografia)
         datos_descifrados.append(fila_descifrada)
         ws.append(fila_descifrada) 
 
@@ -311,22 +292,22 @@ def crear_excel_datos_preguntas(resquest):
     ws_datos_preg.title = "Preguntas generales"
 
     preguntas = PregTamizaje.objects.all()
-    lista_preguntas = ['RutHash', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
+    lista_preguntas = ['id_manychat', 'Preguntas', 'Respuestas', 'Fecha Respuesta'] 
     ws_datos_preg.append(lista_preguntas)
 
     usuarios_respuestas = RespUsuarioTamizaje.objects.select_related(
-        "id_opc_respuesta", "id_opc_respuesta__id_pregunta").values("id",
-        "id_opc_respuesta__id_pregunta__pregunta", "id_opc_respuesta__OPC_Respuesta",
-        "fecha_respuesta",  "RutHash").order_by("-fecha_respuesta")
+        "respuesta_TM", "respuesta_TM__id_pregunta").values("id_manychat",
+        "respuesta_TM__id_pregunta__pregunta", "respuesta_TM__opc_respuesta_TM",
+        "fecha_respuesta").order_by("-fecha_respuesta")
     
 
     for respuesta in usuarios_respuestas:
 
-        pregunta = respuesta['id_opc_respuesta__id_pregunta__pregunta']
-        respuesta_usuario = respuesta['id_opc_respuesta__OPC_Respuesta']
+        pregunta = respuesta['respuesta_TM__id_pregunta__pregunta']
+        respuesta_usuario = respuesta['respuesta_TM__opc_respuesta_TM']
         fecha_respuesta = respuesta['fecha_respuesta'].replace(tzinfo=None) if respuesta['fecha_respuesta'] else ''
         fila = [
-            respuesta['RutHash'],
+            respuesta['id_manychat'],
             pregunta,  
             respuesta_usuario, 
             fecha_respuesta,  
