@@ -98,7 +98,7 @@ def datosPerfil(request):
 @login_required
 def datosPreguntas(request):
     Datos = RespUsuarioTamizaje.objects.select_related(
-        "respuesta_TM", "respuesta_TM__id_pregunta").values("id",
+        "respuesta_TM", "respuesta_TM__id_pregunta").values("id_manychat",
         "respuesta_TM__id_pregunta__pregunta", "respuesta_TM__opc_respuesta_TM",
         "fecha_respuesta").order_by("-fecha_respuesta")
     data = {
