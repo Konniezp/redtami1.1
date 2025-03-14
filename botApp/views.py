@@ -114,14 +114,14 @@ def datosListadoOrdenado(request):
             if password_ingresada == settings.ACCESO_LISTADO:
                 with connection.cursor() as cursor:
                     cursor.execute("""
-                        SELECT 
-                        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+                        SELECT DISTINCT us.id_manychat,
+                        Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
                         COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
                         FROM botApp_opctamizaje opc 
                         LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
                         LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
-                        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
-                        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+                        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id
+                        WHERE respuesta_TM_id IN (1,2,3)         
                         ORDER BY ult.tiempo_transc_ult_mamografia DESC;
                         """)
                     columns = [col[0] for col in cursor.description]
