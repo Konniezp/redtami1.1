@@ -108,43 +108,53 @@ def datosPreguntas(request):
 
 @login_required
 def datosListadoOrdenado(request):
-    with connection.cursor() as cursor:
-        cursor.execute("""
-        SELECT 
-        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
-        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
-        FROM botApp_opctamizaje opc 
-        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
-        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
-        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
-        WHERE rt.respuesta_TM_id IN (25, 26, 27)
-        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
-        """)
-        columns = [col[0] for col in cursor.description]
-        datos = cursor.fetchall()
 
-    #Descifra datos 
-    datos_descifrados=[]
-    for row in datos:
-        id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
-    
-        #Intenta descifrar cada campo encriptado
-        try:
-            Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
-        except:
-            Whatsapp_descifrado = "Error al descifrar Whatsapp"
+    if request.method == "POST":
+            password_ingresada = request.POST.get("password")
+            if password_ingresada == settings.ACCESO_LISTADO:
+                with connection.cursor() as cursor:
+                    cursor.execute("""
+                        SELECT 
+                        us.id_manychat, Whatsapp, edad, opc.opc_respuesta_TM AS Antecedentes, 
+                        COALESCE(ult.tiempo_transc_ult_mamografia, 1000) AS Ult_mamografia
+                        FROM botApp_opctamizaje opc 
+                        LEFT JOIN botApp_respusuariotamizaje rt ON opc.id = rt.respuesta_TM_id
+                        LEFT JOIN botApp_usuario us ON us.id_manychat = rt.id_manychat
+                        LEFT JOIN botApp_ultima_mamografia_anio ult ON us.id_manychat = ult.id_manychat_id         
+                        WHERE rt.respuesta_TM_id IN (25, 26, 27)
+                        ORDER BY ult.tiempo_transc_ult_mamografia DESC;
+                        """)
+                    columns = [col[0] for col in cursor.description]
+                    datos = cursor.fetchall()
+
+                #Descifra datos 
+                datos_descifrados=[]
+                for row in datos:
+                    id_manychat, Whatsapp, edad, antecedentes, ultima_mamografia = row
+                
+                    #Intenta descifrar cada campo encriptado
+                    try:
+                        Whatsapp_descifrado = decrypt_data(Whatsapp) if Whatsapp else "No disponible"
+                    except:
+                        Whatsapp_descifrado = "Error al descifrar Whatsapp"
+                    
+                    datos_descifrados.append({
+                        "id": id_manychat,
+                        "Whatsapp": Whatsapp_descifrado,
+                        "edad": edad,
+                        "Antecedentes_familiares": antecedentes,
+                        "Ult_mamografia": ultima_mamografia,
+                    })
+
+                return render(request, "respuestas/datosListadoOrdenado.html", {"Datos": datos_descifrados})
+            else:
+                error = "Contraseña incorrecta"
+    else:
+        error = None
         
-        datos_descifrados.append({
-            "id": id_manychat,
-            "Whatsapp": Whatsapp_descifrado,
-            "edad": edad,
-            "Antecedentes_familiares": antecedentes,
-            "Ult_mamografia": ultima_mamografia,
-        })
-    return render(request, "respuestas/datosListadoOrdenado.html", {"Datos": datos_descifrados})
-#Se agregan los datos descifrados a la lista
-
+    return render(request, "respuestas/form_contrasena_listado.html", {"error": error})
 #Ajustar anchos de columnas según el largo de la celda
+
 def ajustar_ancho_columnas(ws):
     for col in ws.columns:
         max_length = 0
@@ -518,7 +528,7 @@ def generar_grafico_pregunta1():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje 
+            FROM botApp_respusuariotamizaje 
             WHERE respuesta_TM_id IN (1, 2, 3) 
             GROUP BY respuesta_TM_id;"""
         )
@@ -559,7 +569,7 @@ def generar_grafico_pregunta2():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje 
+            FROM botApp_respusuariotamizaje 
             WHERE respuesta_TM_id IN (7, 8, 9) 
             GROUP BY respuesta_TM_id;"""
         )
@@ -600,7 +610,7 @@ def generar_grafico_pregunta3():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje u 
+            FROM botApp_respusuariotamizaje u 
             WHERE respuesta_TM_id IN (10,11,12,13) 
             GROUP BY respuesta_TM_id;"""
         )
@@ -641,7 +651,7 @@ def generar_grafico_pregunta4():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje u 
+            FROM botApp_respusuariotamizaje u 
             WHERE respuesta_TM_id IN (14, 15, 16) 
             GROUP BY respuesta_TM_id;"""
         )
@@ -682,7 +692,7 @@ def generar_grafico_pregunta5():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje u
+            FROM botApp_respusuariotamizaje u
             WHERE respuesta_TM_id IN (22, 23, 24) 
             GROUP BY respuesta_TM_id;"""
         )
@@ -723,7 +733,7 @@ def generar_grafico_pregunta6():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
-            FROM botapp_respusuariotamizaje
+            FROM botApp_respusuariotamizaje
             WHERE respuesta_TM_id IN (25, 26, 27)
             GROUP BY respuesta_TM_id;"""
         )
@@ -766,7 +776,7 @@ def generar_grafico_mamografia_si_por_edad():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad 
-            FROM botapp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            FROM botApp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
             WHERE respuesta_TM_id IN (1)
             GROUP BY us.edad ORDER BY edad ASC;""" 
         )
@@ -810,7 +820,7 @@ def generar_grafico_mamografia_no_por_edad():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad 
-            FROM botapp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat
+            FROM botApp_respusuariotamizaje ur JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat
             WHERE respuesta_TM_id IN (2)
             GROUP BY edad ORDER BY edad ASC;"""
         )
@@ -849,7 +859,7 @@ def mamografia_por_edad_si_no():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
-            FROM botapp_respusuariotamizaje ur 
+            FROM botApp_respusuariotamizaje ur 
             JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
             WHERE respuesta_TM_id IN (1,2) 
             GROUP BY edad, ur.respuesta_TM_id 
@@ -1009,7 +1019,7 @@ def mamografia_por_edad_si_no_rango_edad():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
-            FROM botapp_respusuariotamizaje ur 
+            FROM botApp_respusuariotamizaje ur 
             JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat  
             WHERE respuesta_TM_id IN (1,2)
             GROUP BY edad, ur.respuesta_TM_id 
@@ -1079,7 +1089,7 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
-            FROM botapp_respusuariotamizaje ur 
+            FROM botApp_respusuariotamizaje ur 
             JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
             WHERE respuesta_TM_id IN (1,2)
             GROUP BY edad, ur.respuesta_TM_id 
@@ -1141,7 +1151,7 @@ def grafico_prev_salud_por_rango_edad():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
-            FROM botApp_usuario us JOIN  botapp_respusuariotamizaje ur ON us.id_manychat = ur.id_manychat
+            FROM botApp_usuario us JOIN  botApp_respusuariotamizaje ur ON us.id_manychat = ur.id_manychat
             WHERE ur.respuesta_TM_id IN(19,20,21)
             GROUP BY edad, respuesta_TM_id 
             ORDER BY edad ASC;"""  
@@ -1210,11 +1220,11 @@ def generar_grafico_mamo_si_por_familiar_directo():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT r.respuesta_TM_id, COUNT(DISTINCT r.id_manychat) AS cantidad_respuestas
-            FROM botapp_respusuariotamizaje r
+            FROM botApp_respusuariotamizaje r
             WHERE r.respuesta_TM_id IN (25, 26, 27)  
             AND r.id_manychat IN (
             SELECT DISTINCT r2.id_manychat
-            FROM botapp_respusuariotamizaje r2
+            FROM botApp_respusuariotamizaje r2
             WHERE r2.respuesta_TM_id = 1  
             )   
             GROUP BY r.respuesta_TM_id;"""
@@ -1257,11 +1267,11 @@ def generar_grafico_mamo_no_por_familiar_directo():
     with connection.cursor() as cursor:
         cursor.execute(
             """SELECT r.respuesta_TM_id, COUNT(DISTINCT r.id_manychat) AS cantidad_respuestas
-            FROM botapp_respusuariotamizaje r
+            FROM botApp_respusuariotamizaje r
             WHERE r.respuesta_TM_id IN (25, 26, 27)  
             AND r.id_manychat IN (
                 SELECT DISTINCT r2.id_manychat
-                FROM botapp_respusuariotamizaje r2
+                FROM botApp_respusuariotamizaje r2
                 WHERE r2.respuesta_TM_id = 2 
                 )
             GROUP BY r.respuesta_TM_id;"""
