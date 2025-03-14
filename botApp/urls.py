@@ -31,9 +31,9 @@ urlpatterns = [
 
     # Preguntas
     path('listarPreguntas/', views.listarPreguntas, name='listarPreguntas'),
-    #path('modificarPregunta/<id>/', views.modificarPregunta, name='modificarPregunta'),
-    #path('eliminarPregunta/<id>/', views.eliminarPregunta, name='eliminarPregunta'),
-    #path('crearPregunta/', views.crearPregunta, name='crearPregunta'),
+    path('modificarPregunta/<id>/', views.modificarPregunta, name='modificarPregunta'),
+    path('eliminarPregunta/<id>/', views.eliminarPregunta, name='eliminarPregunta'),
+    path('crearPregunta/', views.crearPregunta, name='crearPregunta'),
 
     # Descargar Excel
     path('descargar_excel/', views.descargar_excel, name='descargar_excel'),

@@ -1382,6 +1382,7 @@ def formulario(request):
 
     return render(request, "formulario.html", data)
 
+
 """
 # --------------------- Preguntas --------------------- #
 
@@ -1394,15 +1395,14 @@ def listarPreguntas(request):
     }
     return render(request, "preguntas/listarPreguntas.html", data)
 
-"""
 # Modificar Pregunta
 @login_required
 def modificarPregunta(request, id):
-    Preguntas = Pregunta.objects.get(id=id)
-    data = {"form": PreguntaForm(instance=Preguntas)}
+    Preguntas = PregTamizaje.objects.get(id=id)
+    data = {"form": PregTamizajeForm(instance=Preguntas)}
 
     if request.method == "POST":
-        formulario = PreguntaForm(
+        formulario = PregTamizajeForm(
             data=request.POST, instance=Preguntas, files=request.FILES
         )
         if formulario.is_valid():
@@ -1417,7 +1417,7 @@ def modificarPregunta(request, id):
 # Eliminar Pregunta
 @login_required
 def eliminarPregunta(request, id):
-    Preguntas = Pregunta.objects.get(id=id)
+    Preguntas = PregTamizaje.objects.get(id=id)
     Preguntas.delete()
     messages.success(request, "Eliminado Correctamente")
     return redirect(to="listarPreguntas")
@@ -1426,10 +1426,10 @@ def eliminarPregunta(request, id):
 # Crear Pregunta
 @login_required
 def crearPregunta(request):
-    data = {"form": PreguntaForm()}
+    data = {"form": PregTamizajeForm()}
 
     if request.method == "POST":
-        formulario = PreguntaForm(data=request.POST, files=request.FILES)
+        formulario = PregTamizajeForm(data=request.POST, files=request.FILES)
         if formulario.is_valid():
             formulario.save()
             messages.success(request, "Pregunta Creada Correctamente")
@@ -1438,7 +1438,7 @@ def crearPregunta(request):
 
     return render(request, "preguntas/crearPreguntas.html", data)
 
-"""
+
 # --------------------- Mensajes --------------------- #
 @login_required
 def homeMensajes(request):
