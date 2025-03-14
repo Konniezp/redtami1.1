@@ -15,7 +15,7 @@
                 </tr>
                 <tr>
                     <th>#</th>
-                    <th>ID</th>
+                    <th>ID Manychat</th>
                     <th>Pregunta</th>
                     <th>Respuesta</th>
                     <th>Fecha Respuesta</th>
@@ -25,7 +25,7 @@
                 {% for dato in Datos %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ dato.id }}</td>
+                    <td>{{ dato.id_manychat}}</td>
                     <td>{{ dato.respuesta_TM__id_pregunta__pregunta}}</td>
                     <td>{{ dato.respuesta_TM__opc_respuesta_TM}}</td>
                     <td>{{ dato.fecha_respuesta }}</td>
