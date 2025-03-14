@@ -32,6 +32,8 @@ ENCRYPT_KEY = os.getenv('ENCRYPT_KEY')
 if not ENCRYPT_KEY:
     raise ValueError("Falta la clave de cifrado 'ENCRYPT_KEY' en el archivo .env")
 
+ACCESO_LISTADO = os.getenv('ACCESO_LISTADO')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
