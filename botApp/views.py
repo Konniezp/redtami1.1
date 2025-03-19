@@ -1021,76 +1021,6 @@ def mamografia_por_edad_si_no_rango_edad():
         cursor.execute(
             """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
             FROM botApp_respusuariotamizaje ur 
-            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat  
-            WHERE respuesta_TM_id IN (1,2)
-            GROUP BY edad, ur.respuesta_TM_id 
-            ORDER BY edad ASC;"""
-        )
-        resultados = cursor.fetchall()
-
-    r_uno_edad_eti = "Menor de 50 años"
-    r_dos_edad_eti = "Entre 50 y 69 años"
-    r_tres_edad_eti = "Mayor a 69 años"
-    opciones_anios = [r_uno_edad_eti, r_dos_edad_eti, r_tres_edad_eti]
-    cantidades_si = [0, 0, 0]
-    cantidades_no = [0, 0, 0]
-
-    edad_min = 50
-    edad_max = 69
-
-    # Iteramos sobre los resultados
-    for resultado in resultados:
-        edad, cantidad, respuesta = resultado
-
-        if edad < edad_min and respuesta == 1:
-            cantidades_si[0] += cantidad
-        elif edad >= edad_min and edad <= edad_max and respuesta == 1:
-            cantidades_si[1] += cantidad
-        elif edad > edad_max and respuesta == 1:
-            cantidades_si[2] += cantidad 
-        elif edad < edad_min and respuesta == 2:
-            cantidades_no[0] += cantidad
-        elif edad >= edad_min and edad <= edad_max and respuesta == 2:
-            cantidades_no[1] += cantidad
-        elif edad > edad_max and respuesta == 2:
-            cantidades_no[2] += cantidad 
-
-    # Crear el gráfico
-    plt.figure(figsize=[18, 8])
-    plt.bar(opciones_anios, cantidades_si, color="#79addc", label="Cantidad Sí")
-    plt.bar(opciones_anios, cantidades_no, color="#EFB0C9", bottom=cantidades_si, label="Cantidad No")
-    plt.xlabel("Rango de edad según guía clínica")
-    plt.ylabel("Número de Usuarias")
-    plt.title("Mamografías por rango de Edad", pad=20)
-    plt.legend()
-
-    # Agregar etiquetas para las barras de cantidades_si
-    for edad, cantidad_si, cantidad_no in zip(opciones_anios, cantidades_si, cantidades_no):
-        if cantidad_si > 0:
-            plt.text(edad, cantidad_si - cantidad_si / 2,  
-                 str(cantidad_si), ha='center', va='bottom', color='black')
-
-    # Agregar etiquetas para las barras de cantidades_no
-    for edad, cantidad_si, cantidad_no in zip(opciones_anios, cantidades_si, cantidades_no):
-        if cantidad_no > 0:
-            plt.text(edad, cantidad_si + cantidad_no - cantidad_no / 2,  
-                str(cantidad_no), ha='center', va='top', color='black')
-
-   # Guardar la imagen en un buffer
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png")
-    buffer.seek(0)
-    plt.close()
-
-    # Convertir la imagen a base64
-    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-    return imagen_base64
-
-def mamografia_por_edad_si_no_rango_edad_agrupado():
-    with connection.cursor() as cursor:
-        cursor.execute(
-            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
-            FROM botApp_respusuariotamizaje ur 
             JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
             WHERE respuesta_TM_id IN (1,2,3)
             GROUP BY edad, ur.respuesta_TM_id 
@@ -1123,8 +1053,8 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
     # Crear el gráfico
     plt.figure(figsize=[18, 8])
     plt.bar(opciones_anios, cantidades_si, color="#79addc", label="Cantidad Si")
-    plt.bar(opciones_anios, cantidades_no, color="#EFB0C9", bottom=cantidades_si, label="Cantidad Isapre")
-    plt.bar(opciones_anios, cantidades_no_recuerdo, color="#A5F8CE", bottom=np.array(cantidades_si) + np.array(cantidades_no), label="Cantidad Otro")
+    plt.bar(opciones_anios, cantidades_no, color="#EFB0C9", bottom=cantidades_si, label="Cantidad No")
+    plt.bar(opciones_anios, cantidades_no_recuerdo, color="#A5F8CE", bottom=np.array(cantidades_si) + np.array(cantidades_no), label="Cantidad No recuerdo")
     plt.xlabel("Rango de edad según guía clínica")
     plt.ylabel("Número de Usuarias")
     plt.title("Mamografía por rango de edad", pad=20)
@@ -1144,7 +1074,68 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
         if cantidad_otro > 0:
             plt.text(i, cantidad_fonasa + cantidad_isapre + cantidad_otro / 2, str(cantidad_otro), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
 
-   
+   # Guardar la imagen en un buffer
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    buffer.seek(0)
+    plt.close()
+
+    # Convertir la imagen a base64
+    imagen_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return imagen_base64
+    
+
+def mamografia_por_edad_si_no_rango_edad_agrupado():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botApp_respusuariotamizaje ur 
+            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            WHERE respuesta_TM_id IN (1,2)
+            GROUP BY edad, ur.respuesta_TM_id 
+            ORDER BY edad ASC;"""  
+        )
+        resultados = cursor.fetchall()
+
+    opciones_anios = ["Menores de 50", "50 a 69", "Desde los 70"]
+    cantidades_si = [0, 0, 0]
+    cantidades_no = [0, 0, 0]
+
+    # Iteramos sobre los resultados
+    for resultado in resultados:
+        edad, cantidad, respuesta = resultado
+
+        if edad < 50 and respuesta == 1:
+            cantidades_si[0] += cantidad
+        elif edad >= 50 and edad <= 69 and respuesta == 1:
+            cantidades_si[1] += cantidad
+        elif edad > 69 and respuesta == 1:
+            cantidades_si[2] += cantidad 
+        elif edad < 50 and respuesta == 2:
+            cantidades_no[0] += cantidad
+        elif edad >= 50 and edad <= 69 and respuesta == 2:
+            cantidades_no[1] += cantidad
+        elif edad > 69 and respuesta == 2:
+            cantidades_no[2] += cantidad 
+
+    x = np.arange(len(opciones_anios))  
+    width = 0.35  
+
+    fig, ax = plt.subplots(figsize=[18, 8])
+    rects1 = ax.bar(x - width/2, cantidades_si, width, label='Cantidad Sí', color = '#79addc')
+    rects2 = ax.bar(x + width/2, cantidades_no, width, label='Cantidad No', color="#EFB0C9")
+
+    ax.set_xlabel("Rango de edad guía clínica")
+    ax.set_ylabel("Número de Usuarias")
+    ax.set_title("Mamografías por rango de Edad", pad=20)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(opciones_anios)
+    plt.legend()
+
+    # Etiquetas en las barras
+    ax.bar_label(rects1, padding=3, color="black")
+    ax.bar_label(rects2, padding=3, color="black")
 
    # Guardar la imagen en un buffer
     buffer = BytesIO()
