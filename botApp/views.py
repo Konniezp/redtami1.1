@@ -1122,14 +1122,13 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
     
     # Crear el gráfico
     plt.figure(figsize=[18, 8])
-    plt.bar(opciones_anios, cantidades_si, color="#a0b3a8", label="Cantidad Si")
-    plt.bar(opciones_anios, cantidades_no, color="#c6a78f", bottom=cantidades_si, label="Cantidad Isapre")
-    plt.bar(opciones_anios, cantidades_no_recuerdo, color="#ecc8c9", bottom=np.array(cantidades_si) + np.array(cantidades_no), label="Cantidad Otro")
+    plt.bar(opciones_anios, cantidades_si, color="#79addc", label="Cantidad Si")
+    plt.bar(opciones_anios, cantidades_no, color="#EFB0C9", bottom=cantidades_si, label="Cantidad Isapre")
+    plt.bar(opciones_anios, cantidades_no_recuerdo, color="#A5F8CE", bottom=np.array(cantidades_si) + np.array(cantidades_no), label="Cantidad Otro")
     plt.xlabel("Rango de edad según guía clínica")
     plt.ylabel("Número de Usuarias")
-    plt.title("Previsión de salud por rango de Edad", pad=20)
+    plt.title("Mamografía por rango de edad", pad=20)
     plt.legend()
-    
     # Agregar etiquetas para las barras de cantidades_fonasa
     for i, (edad, cantidad_fonasa) in enumerate(zip(opciones_anios, cantidades_si)):
         if cantidad_fonasa > 0:
