@@ -128,25 +128,29 @@ class OpcTamizaje(models.Model):
 class RespUsuarioTamizaje(models.Model):
     id = models.AutoField(primary_key=True, verbose_name="ID Usuario Respuesta")
     id_manychat = models.IntegerField()
-    respuesta_TM = models.ForeignKey(OpcTamizaje, on_delete=models.CASCADE)
+    respuesta_TM = models.ForeignKey('OpcTamizaje', on_delete=models.CASCADE)
     fecha_respuesta = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
     
-        if self.respuesta_TM.id in [10, 11, 12, 13]:
+        # Verificar si la respuesta es sobre mamografía (IDs 10, 11, 12)
+        if self.respuesta_TM.id in [10, 11, 12]:
             usuario = Usuario.objects.filter(id_manychat=self.id_manychat).first()
             if usuario:
                 anio = self.obtener_anio_mamografia()
-                if anio:
-                    ultima_mamografia_anio.update_or_create(id_manychat=usuario, defaults = {"anio_ult_mamografia":anio})
-                    
-    def obtener_anio_mamografia(self):
+                if anio is not None:  # Solo proceder si se obtiene un año válido
+                    ultima_mamografia_anio.objects.update_or_create(
+                        id_manychat=usuario,
+                        defaults={"anio_ult_mamografia": anio}
+                    )
     
+    def obtener_anio_mamografia(self):
+        # Diccionario que mapea IDs de respuestas a años de mamografía
         respuestas_mamografia = {
             10: 2024,  # ID 10 corresponde a Año 2024
             11: 2023,  # ID 11 corresponde a Año 2023
-            12: 2022,  # ID 12 corresponde a Antes de 2022, para el cálculo se asume 2022. 
+            12: 2022,  # ID 12 corresponde a Antes de 2022, para el cálculo se asume 2022.
         }
         return respuestas_mamografia.get(self.respuesta_TM.id)
     
