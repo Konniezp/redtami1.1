@@ -138,12 +138,9 @@ class RespUsuarioTamizaje(models.Model):
             usuario = Usuario.objects.filter(id_manychat=self.id_manychat).first()
             if usuario:
                 anio = self.obtener_anio_mamografia()
-                if anio:  # Solo guarda si anio tiene un valor válido (no 0)
-                    ultima_mamografia_anio.objects.update_or_create(
-                    id_manychat=usuario,
-                    defaults={"anio_ult_mamografia": anio}
-                )
-
+                if anio:
+                    ultima_mamografia_anio.update_or_create(id_manychat=usuario, defaults = {"anio_ult_mamografia":anio})
+                    
     def obtener_anio_mamografia(self):
     
         respuestas_mamografia = {
