@@ -571,7 +571,7 @@ def generar_grafico_pregunta2():
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
             FROM botApp_respusuariotamizaje 
-            WHERE respuesta_TM_id IN (7, 8, 9) 
+            WHERE respuesta_TM_id IN (7, 8) 
             GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
@@ -612,7 +612,7 @@ def generar_grafico_pregunta3():
         cursor.execute(
             """SELECT respuesta_TM_id, COUNT(*) 
             FROM botApp_respusuariotamizaje u 
-            WHERE respuesta_TM_id IN (10,11,12,13) 
+            WHERE respuesta_TM_id IN (10,11,12) 
             GROUP BY respuesta_TM_id;"""
         )
         resultados = cursor.fetchall()
