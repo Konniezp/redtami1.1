@@ -1125,7 +1125,7 @@ def mamografia_por_edad_si_no_rango_edad_agrupado():
     fig, ax = plt.subplots(figsize=[18, 8])
     rects1 = ax.bar(x - width, cantidades_si, width, label='Cantidad Sí', color = '#79addc')
     rects2 = ax.bar(x, cantidades_no, width, label='Cantidad No', color="#EFB0C9")
-    rects3 = ax.bar(x + width + cantidades_no_recuerdo, width, label='Cantidad No Recuerdo', color="#A5F8CE")
+    rects3 = ax.bar(x + width, cantidades_no_recuerdo, width, label='Cantidad No Recuerdo', color="#A5F8CE")
 
     ax.set_xlabel("Rango de edad guía clínica")
     ax.set_ylabel("Número de Usuarias")
