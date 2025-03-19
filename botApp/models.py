@@ -154,7 +154,7 @@ class RespUsuarioTamizaje(models.Model):
         }
         return respuestas_mamografia.get(self.respuesta_TM.id)
     
-    def __str__(self): 
+    def __str__(self):
         return f"{self.id_manychat} - {self.respuesta_TM}"
 
 class MensajeContenido(models.Model):
@@ -179,13 +179,14 @@ class ultima_mamografia_anio(models.Model):
     anio_ult_mamografia = models.IntegerField(default=0, verbose_name="Año de última mamografía")
     tiempo_transc_ult_mamografia = models.IntegerField(default=0, verbose_name="Tiempo transcurrido")
     fecha_pregunta = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    id_manychat = models.ForeignKey(Usuario, on_delete=models.CASCADE, to_field="id_manychat")
+    id_manychat = models.ForeignKey('Usuario', on_delete=models.CASCADE, to_field="id_manychat")
 
     def calculo_tiempo_transc_ult_mamografia(self):
         anio_actual = date.today().year
         return anio_actual - self.anio_ult_mamografia if self.anio_ult_mamografia else 0
 
     def save(self, *args, **kwargs):
+        # Calcular el tiempo transcurrido antes de guardar
         self.tiempo_transc_ult_mamografia = self.calculo_tiempo_transc_ult_mamografia()
         super().save(*args, **kwargs)
 
