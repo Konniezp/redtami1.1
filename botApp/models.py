@@ -135,16 +135,13 @@ class RespUsuarioTamizaje(models.Model):
         super().save(*args, **kwargs)
     
         if self.respuesta_TM.id in [10, 11, 12, 13]:
-            # Verificar si el usuario existe
-            if Usuario.objects.filter(id_manychat=self.id_manychat).exists():
-                usuario = Usuario.objects.get(id_manychat=self.id_manychat)
-
-                # Crear o actualizar la instancia de ultima_mamografia_anio
-                ultima_mamografia_anio.objects.update_or_create(
+            usuario = Usuario.objects.filter(id_manychat=self.id_manychat).first()
+            if usuario:
+                anio = self.obtener_anio_mamografia()
+                if anio:  # Solo guarda si anio tiene un valor válido (no 0)
+                    ultima_mamografia_anio.objects.update_or_create(
                     id_manychat=usuario,
-                    defaults={
-                        "anio_ult_mamografia": self.obtener_anio_mamografia(),
-                    }
+                    defaults={"anio_ult_mamografia": anio}
                 )
 
     def obtener_anio_mamografia(self):
@@ -154,7 +151,7 @@ class RespUsuarioTamizaje(models.Model):
             11: 2023,  # ID 11 corresponde a Año 2023
             12: 2022,  # ID 12 corresponde a Antes de 2022, para el cálculo se asume 2022. 
         }
-        return respuestas_mamografia.get(self.respuesta_TM.id, 0)
+        return respuestas_mamografia.get(self.respuesta_TM.id)
     
     def __str__(self):
         return f"{self.id_manychat} - {self.respuesta_TM}"
