@@ -1583,8 +1583,14 @@ def consultar_estado_pregunta(request):
     respondido = False
 
     # Verificar el tipo de pregunta
-    if data["tipo_pregunta"] == "TM":
-        pregunta_model = PregTamizaje.objects.filter(pregunta=data["nombre_pregunta"]).first()
+    try:
+        tipo_pregunta = data["tipo_pregunta"]
+        nombre_pregunta = data["nombre_pregunta"]
+    except KeyError:
+        return JsonResponse({"error": "Los campos 'tipo_pregunta' y 'nombre_pregunta' son requeridos."}, status=400)
+
+    if tipo_pregunta == "TM":
+        pregunta_model = PregTamizaje.objects.filter(pregunta=nombre_pregunta).first()
         if pregunta_model:
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcTamizaje.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
