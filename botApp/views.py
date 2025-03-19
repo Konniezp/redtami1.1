@@ -1598,7 +1598,7 @@ def consultar_estado_pregunta(request):
         if pregunta_model:
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcTamizaje.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
-            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
+            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, respuesta_TM_id__in=opcion_respuesta_model).    values_list("id", flat=True))
             respondido = len(respuesta) > 0
 
     """elif data["tipo_pregunta"] == "DS":
