@@ -154,7 +154,7 @@ class RespUsuarioTamizaje(models.Model):
         }
         return respuestas_mamografia.get(self.respuesta_TM.id)
     
-    def __str__(self):
+    def __str__(self): 
         return f"{self.id_manychat} - {self.respuesta_TM}"
 
 class MensajeContenido(models.Model):
