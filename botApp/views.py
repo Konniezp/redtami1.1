@@ -26,6 +26,7 @@ from rest_framework import viewsets
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import JSONParser
+from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import *
 from .models import *
@@ -1567,16 +1568,19 @@ def consultar_estado_pregunta(request):
         return JsonResponse({"error": "Método no permitido."}, status=405)
 
     try:
-        data = JSONParser().parse(request)
-    except Exception:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
         return JsonResponse({"error": "Error al leer el JSON, asegúrate de que el formato es correcto."}, status=400)
     
-    id_manychat = data["id_manychat"]
+    try:
+        id_manychat = data["id_manychat"]
+    except KeyError:
+        return JsonResponse({"error": "El campo 'id_manychat' es requerido."}, status=400)
 
     # Verificar si el usuario existe en la BD
-    usuario_model = Usuario.objects.filter(id_manychat=id_manychat).first()
-    
-    if not usuario_model:
+    try:
+        usuario_model = Usuario.objects.get(id_manychat=id_manychat)
+    except ObjectDoesNotExist:
         return JsonResponse({"respondido": "false"})
 
     # Inicializar respuesta como False
@@ -1594,7 +1598,8 @@ def consultar_estado_pregunta(request):
         if pregunta_model:
             id_pregunta = pregunta_model.id
             opcion_respuesta_model = list(OpcTamizaje.objects.filter(id_pregunta=id_pregunta).values_list("id", flat=True))
-            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, respuesta_TM_id__in=opcion_respuesta_model).values_list("id", flat=True))
+            respuesta = list(RespUsuarioTamizaje.objects.filter(id_manychat=id_manychat, id_opc_respuesta__in=opcion_respuesta_model).values_list("id", flat=True))
+            respondido = len(respuesta) > 0
 
     """elif data["tipo_pregunta"] == "DS":
         pregunta_model = PregDeterSalud.objects.filter(pregunta_DS=data["nombre_pregunta"]).first()
