@@ -1060,19 +1060,19 @@ def mamografia_por_edad_si_no_rango_edad():
     plt.title("Mamografía por rango de edad", pad=20)
     plt.legend()
     # Agregar etiquetas para las barras de cantidades_si
-    for i, (edad, cantidades_si) in enumerate(zip(opciones_anios, cantidades_si)):
-        if cantidades_si > 0:
-            plt.text(i, cantidades_si / 2, str(cantidades_si), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
+    for i, (edad, cantidad_si) in enumerate(zip(opciones_anios, cantidades_si)):
+        if cantidad_si > 0:
+            plt.text(i, cantidad_si / 2, str(cantidad_si), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
 
     # Agregar etiquetas para las barras de cantidades_no
-    for i, (edad, cantidades_si, cantidades_no) in enumerate(zip(opciones_anios, cantidades_si, cantidades_no)):
-        if cantidades_no > 0:
-            plt.text(i, cantidades_si + cantidades_no / 2, str(cantidades_no), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
+    for i, (edad, cantidad_si, cantidad_no) in enumerate(zip(opciones_anios, cantidades_si, cantidades_no)):
+        if cantidad_no > 0:
+            plt.text(i, cantidad_si + cantidad_no / 2, str(cantidad_no), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
 
     # Agregar etiquetas para la barra de cantidades_no_recuerdo
-    for i, (edad, cantidades_si, cantidades_no, cantidades_no_recuerdo) in enumerate(zip(opciones_anios, cantidades_si, cantidades_no, cantidades_no_recuerdo)):
-        if cantidades_no_recuerdo > 0:
-            plt.text(i, cantidades_si + cantidades_no + cantidades_no_recuerdo / 2, str(cantidades_no_recuerdo), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
+    for i, (edad, cantidad_si, cantidad_no, cantidad_no_recuerdo) in enumerate(zip(opciones_anios, cantidades_si, cantidades_no, cantidades_no_recuerdo)):
+        if cantidad_no_recuerdo > 0:
+            plt.text(i, cantidad_si + cantidad_no + cantidad_no_recuerdo / 2, str(cantidad_no_recuerdo), ha='center', va='center', color='black', fontsize=10, fontweight='bold')
 
    # Guardar la imagen en un buffer
     buffer = BytesIO()
