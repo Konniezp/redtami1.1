@@ -859,14 +859,12 @@ def generar_grafico_mamografia_no_por_edad():
 def mamografia_por_edad_si_no():
     with connection.cursor() as cursor:
         cursor.execute(
-            """
-            SELECT us.edad, COUNT(*) as Cantidad, ur.id_opc_respuesta_id
-            FROM botApp_usuariorespuesta ur 
-            JOIN botApp_usuario us ON ur.RutHash = us.RutHash JOIN botApp_respusuariofactorriesgonomod r ON us.RutHash = r.RutHash
-            WHERE respuesta_FRNM_id IN (1) AND id_opc_respuesta_id IN (1,2,3) 
-            GROUP BY edad, ur.id_opc_respuesta_id 
-            ORDER BY edad ASC;
-            """
+            """SELECT us.edad, COUNT(*) as Cantidad, ur.respuesta_TM_id
+            FROM botApp_respusuariotamizaje ur 
+            JOIN botApp_usuario us ON ur.id_manychat = us.id_manychat 
+            WHERE respuesta_TM_id IN (1,2) 
+            GROUP BY edad, ur.respuesta_TM_id 
+            ORDER BY edad ASC;"""         
         )
         resultados = cursor.fetchall()
 
