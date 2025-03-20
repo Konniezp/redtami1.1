@@ -1,20 +1,11 @@
 
 # BotCancer Manychat
 
-Proyecto creado como trabajo de práctica profesional, donde mediante un bot de whatsapp se solicitan datos para el cancer de mama. Estos datos van a una web donde se visualizan estos y se efectúa la reporteria.
+Versión acotada de RedTami, diseñada para eventos masivos, donde mediante un bot de whatsapp se solicitan datos para el cáncer de mama. Estos datos van a una web donde se visualizan y se efectúa la reporteria.
 
 ## Autor
+- [@Konniezp](https://github.com/Konniezp)
+- [@nikole-gonzalez](https://github.com/nikole-gonzalez)
 
-- [@BryanBece](https://www.github.com/bryanbece)
-## Demo
-
-http://practicabryanbece.eu.pythonanywhere.com/
-
-
-
-## 🔗 Links
-
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/bryan-becerra-p)
-
-
+  
 "# redtami" 
